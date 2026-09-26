@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inglés Técnico II — Study App v2</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4f8ef7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --border:#2e3350;
+  --accent:#4f8ef7; --green:#22c55e; --red:#ef4444; --yellow:#f59e0b;
+  --purple:#7c3aed; --orange:#f97316;
+  --text:#e2e8f0; --text2:#8892a4; --text3:#4a5568;
+  --mono:'JetBrains Mono','Fira Code','Courier New',monospace;
+  --body:'Inter','Segoe UI',system-ui,sans-serif;
+  --r:10px; --rs:6px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--body);min-height:100vh}
+#app{display:flex;flex-direction:column;min-height:100vh}
+
+/* HEADER */
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:12px}
+header h1{font-size:14px;font-weight:700;color:var(--accent);letter-spacing:.05em;text-transform:uppercase}
+header .sub{font-size:12px;color:var(--text2)}
+#bc{font-size:11px;color:var(--text3);margin-left:auto}
+
+main{flex:1;padding:28px 20px;max-width:900px;margin:0 auto;width:100%}
+
+/* BANNER */
+.banner{background:#2d1f00;border:1px solid var(--yellow);border-radius:var(--rs);padding:10px 16px;font-size:12px;color:var(--yellow);display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.banner strong{color:#fde68a}
+/* SRS THEORY */
+.srs-theory{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:14px}
+.srs-theory h2{font-size:15px;font-weight:700;color:var(--green);margin-bottom:12px}
+.srs-theory h3{font-size:12px;font-weight:700;color:var(--yellow);margin:12px 0 6px}
+.srs-theory p{font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:8px}
+.srs-theory p strong{color:var(--text)}
+.srs-theory .formula{background:var(--surface2);border-left:3px solid var(--green);border-radius:var(--rs);padding:8px 12px;font-family:var(--mono);font-size:11px;color:var(--green);margin:6px 0}
+.srs-theory .warn{background:#2d1f00;border:1px solid var(--yellow);border-radius:var(--rs);padding:8px 12px;font-size:11px;color:var(--yellow);margin:6px 0;white-space:pre-line}
+.srs-theory-done{margin-top:16px;background:var(--green);color:#000;border:none;padding:10px 20px;border-radius:var(--rs);cursor:pointer;font-size:13px;font-weight:700;width:100%}
+/* HOME */
+.home-title{font-size:26px;font-weight:800;margin-bottom:4px}
+.home-sub{color:var(--text2);font-size:13px;margin-bottom:20px}
+
+/* SECTION HEADER */
+.sec-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin:28px 0 10px}
+
+/* TOPIC GRID */
+.topic-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:8px}
+.topic-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;cursor:pointer;transition:border-color .15s,transform .1s;display:flex;flex-direction:column;gap:8px}
+.topic-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.topic-tag{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.tag-grammar{color:var(--accent)}
+.tag-srs{color:var(--green)}
+.tag-mixed{color:var(--yellow)}
+.tag-error{color:var(--red)}
+.topic-name{font-size:16px;font-weight:700}
+.topic-desc{font-size:12px;color:var(--text2);line-height:1.5}
+.prog-bg{background:var(--border);border-radius:99px;height:3px;margin-top:4px}
+.prog-fill{border-radius:99px;height:3px;transition:width .4s}
+.fill-accent{background:var(--accent)}
+.fill-green{background:var(--green)}
+.fill-yellow{background:var(--yellow)}
+.prog-lbl{font-size:10px;color:var(--text3);margin-top:3px}
+
+/* BACK + TABS */
+.back-btn{background:none;border:1px solid var(--border);color:var(--text2);padding:6px 14px;border-radius:var(--rs);cursor:pointer;font-size:12px;margin-bottom:20px;transition:border-color .15s}
+.back-btn:hover{border-color:var(--accent);color:var(--accent)}
+.mode-tabs{display:flex;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:24px}
+.mode-tab{flex:1;padding:10px;background:var(--surface);border:none;color:var(--text2);cursor:pointer;font-size:12px;font-weight:600;transition:background .15s,color .15s}
+.mode-tab.active{background:var(--accent);color:#fff}
+.mode-tab:disabled{opacity:.4;cursor:not-allowed}
+
+/* THEORY */
+.theory-block{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:14px}
+.theory-block h2{font-size:16px;font-weight:700;margin-bottom:12px;color:var(--accent)}
+.theory-block h3{font-size:13px;font-weight:700;margin:14px 0 6px;color:var(--yellow)}
+.theory-block p{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:8px}
+.theory-block p strong{color:var(--text)}
+.formula{background:var(--surface2);border-left:3px solid var(--accent);border-radius:var(--rs);padding:10px 14px;font-family:var(--mono);font-size:12px;color:var(--accent);margin:8px 0}
+.ex-box{background:var(--surface2);border-radius:var(--rs);padding:8px 12px;font-size:12px;margin:4px 0}
+.ex-lbl{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:3px}
+.ex-ok{color:var(--green);font-weight:600}
+.ex-bad{color:var(--red)}
+.kw-table{width:100%;border-collapse:collapse;font-size:12px;margin:8px 0}
+.kw-table th{background:var(--surface2);color:var(--text2);padding:7px 10px;text-align:left;font-size:10px;letter-spacing:.06em;text-transform:uppercase}
+.kw-table td{padding:7px 10px;border-top:1px solid var(--border);color:var(--text2)}
+.kw-table td:first-child{color:var(--accent);font-weight:600}
+.kw-table .kw{color:var(--yellow);font-family:var(--mono);font-size:11px}
+.warn{background:#2d1f00;border:1px solid var(--yellow);border-radius:var(--rs);padding:10px 14px;font-size:12px;color:var(--yellow);margin:8px 0;white-space:pre-line}
+.theory-done{margin-top:16px;background:var(--accent);color:#fff;border:none;padding:10px 20px;border-radius:var(--rs);cursor:pointer;font-size:13px;font-weight:700;width:100%}
+.theory-done:hover{opacity:.85}
+
+/* VOCAB CARDS */
+.vocab-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-top:6px}
+.vc{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:12px;cursor:pointer;transition:border-color .15s}
+.vc:hover{border-color:var(--accent)}
+.vc-en{font-size:14px;font-weight:700}
+.vc-es,.vc-ex{display:none}
+.vc-es{font-size:12px;color:var(--green);margin-top:3px}
+.vc-ex{font-size:10px;color:var(--text3);margin-top:5px;font-style:italic}
+.vc-tap{font-size:9px;color:var(--text3);margin-top:6px}
+.vc.flipped .vc-es,.vc.flipped .vc-ex{display:block}
+
+/* QUIZ */
+.quiz-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.quiz-ctr{font-size:12px;color:var(--text2)}
+.quiz-pill{background:var(--surface2);border-radius:99px;padding:3px 10px;font-size:12px;font-weight:700;color:var(--accent)}
+.quiz-q{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:12px}
+.quiz-qtext{font-size:14px;font-weight:600;line-height:1.6;margin-bottom:4px;white-space:pre-wrap}
+.quiz-hint{font-size:11px;color:var(--text3);margin-bottom:14px;font-style:italic}
+.quiz-opts{display:flex;flex-direction:column;gap:8px}
+.quiz-opt{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 14px;cursor:pointer;font-size:13px;text-align:left;color:var(--text);transition:border-color .1s}
+.quiz-opt:hover:not(:disabled){border-color:var(--accent)}
+.quiz-opt.correct{border-color:var(--green);background:#052e16;color:var(--green)}
+.quiz-opt.wrong{border-color:var(--red);background:#2d0a0a;color:var(--red)}
+.quiz-opt:disabled{cursor:default}
+.quiz-fb{border-radius:var(--rs);padding:10px 14px;font-size:12px;line-height:1.6;margin-top:8px}
+.quiz-fb.ok{background:#052e16;border:1px solid var(--green);color:#86efac}
+.quiz-fb.ko{background:#2d0a0a;border:1px solid var(--red);color:#fca5a5}
+.quiz-next{margin-top:12px;background:var(--accent);color:#fff;border:none;padding:9px 20px;border-radius:var(--rs);cursor:pointer;font-size:13px;font-weight:700}
+
+/* PRODUCE */
+.produce-q{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:12px}
+.produce-prompt{font-size:14px;font-weight:600;line-height:1.6;margin-bottom:12px;white-space:pre-wrap}
+.produce-hint{font-size:11px;color:var(--text3);margin-bottom:12px;font-style:italic}
+.produce-inp{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;color:var(--text);font-size:13px;font-family:var(--body);resize:vertical;min-height:56px;transition:border-color .15s}
+.produce-inp:focus{outline:none;border-color:var(--accent)}
+.produce-acts{display:flex;gap:8px;margin-top:10px}
+.btn-reveal{background:var(--surface2);color:var(--text2);border:1px solid var(--border);padding:9px 18px;border-radius:var(--rs);cursor:pointer;font-size:13px}
+.prod-ans{margin-top:10px;background:var(--surface2);border-radius:var(--rs);padding:10px 14px;font-size:12px}
+.prod-ans-lbl{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:5px}
+.prod-ans-text{color:var(--green);font-weight:600}
+.prod-ans-why{color:var(--text2);margin-top:5px;font-size:11px;line-height:1.5}
+.prod-self{display:flex;gap:8px;margin-top:10px}
+.btn-ok{flex:1;background:#052e16;border:1px solid var(--green);color:var(--green);padding:8px;border-radius:var(--rs);cursor:pointer;font-weight:700;font-size:12px}
+.btn-ko{flex:1;background:#2d0a0a;border:1px solid var(--red);color:var(--red);padding:8px;border-radius:var(--rs);cursor:pointer;font-weight:700;font-size:12px}
+
+/* SRS MODE */
+.srs-interview{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:16px;font-size:13px;line-height:1.8;color:var(--text2);max-height:280px;overflow-y:auto}
+.srs-interview strong{color:var(--accent)}
+.srs-interview .client{color:var(--green)}
+.srs-steps{display:flex;flex-direction:column;gap:12px}
+.srs-step{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px}
+.srs-step-title{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--yellow)}
+.srs-step-desc{font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.5}
+.srs-inp{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:9px 12px;color:var(--text);font-size:12px;font-family:var(--body);resize:vertical;min-height:80px;transition:border-color .15s}
+.srs-inp:focus{outline:none;border-color:var(--green)}
+.srs-check-btn{margin-top:8px;background:var(--green);color:#000;border:none;padding:8px 18px;border-radius:var(--rs);cursor:pointer;font-size:12px;font-weight:700}
+.srs-fb{margin-top:10px;background:var(--surface2);border-radius:var(--rs);padding:10px 14px;font-size:12px;line-height:1.6}
+.srs-fb h4{font-size:11px;font-weight:700;color:var(--green);margin-bottom:6px;letter-spacing:.06em;text-transform:uppercase}
+.srs-fb .model{color:var(--green);margin-bottom:4px}
+.srs-fb .tip{color:var(--text2);font-style:italic}
+.srs-nav{display:flex;gap:8px;margin-top:16px}
+.srs-nav-btn{background:var(--accent);color:#fff;border:none;padding:9px 20px;border-radius:var(--rs);cursor:pointer;font-size:13px;font-weight:700}
+.srs-nav-btn.sec{background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
+
+/* RESULTS */
+.results{text-align:center;padding:36px 16px}
+.results-score{font-size:60px;font-weight:900;color:var(--accent)}
+.results-lbl{font-size:14px;color:var(--text2);margin-bottom:20px}
+.results-msg{font-size:14px;margin-bottom:28px}
+.results-btn{background:var(--accent);color:#fff;border:none;padding:10px 24px;border-radius:var(--rs);cursor:pointer;font-size:14px;font-weight:700;margin:0 4px}
+.results-btn.sec{background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
+
+/* PASOS SRS con saltos de línea + líneas vacías en modelos */
+.srs-step-desc{white-space:pre-line}
+.srs-fb .model:empty{height:.8em}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.table-wrap .kw-table{min-width:460px}
+
+/* ── MOBILE ─────────────────────────────────────────────────────── */
+@media (max-width:768px){
+  .produce-inp,.srs-inp{font-size:16px}
+}
+@media (max-width:600px){
+  header{flex-wrap:wrap;padding:10px 14px;gap:4px 10px}
+  #bc{margin-left:0;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  main{padding:18px 14px}
+  .home-title{font-size:22px}
+  .topic-grid{grid-template-columns:1fr}
+  .vocab-grid{grid-template-columns:repeat(2,1fr)}
+  .theory-block,.srs-theory,.quiz-q,.produce-q,.srs-interview{padding:14px}
+  .quiz-opt,.quiz-next,.btn-reveal,.btn-ok,.btn-ko,.srs-check-btn,.srs-nav-btn,.results-btn,.back-btn,.mode-tab,.theory-done,.srs-theory-done{min-height:44px}
+  .quiz-next,.srs-check-btn,.srs-nav-btn{width:100%}
+  .results-btn{margin:4px}
+  /* 3+ tabs: ícono arriba, texto corto abajo */
+  .mode-tab:first-child:nth-last-child(n+3),
+  .mode-tab:first-child:nth-last-child(n+3)~.mode-tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 4px;font-size:11px}
+  .mode-tab:first-child:nth-last-child(n+3) .tab-ico,
+  .mode-tab:first-child:nth-last-child(n+3)~.mode-tab .tab-ico{font-size:16px}
+}
+@media (max-width:360px){
+  .vocab-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>Inglés Técnico II</h1>
+    <span class="sub">Study App v2</span>
+    <div id="bc"></div>
+  </header>
+  <main id="main"></main>
+</div>
+<script>
+// ════════════════════════════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════════════════════════════
+
+// ── SECCIÓN 1: GRAMÁTICA (Parcial 1) ────────────────────────────────
+const GRAMMAR_TOPICS = [
+  {
+    id:'passive', tag:'grammar', tagLabel:'Gramática',
+    name:'Passive Voice',
+    desc:'Past Simple, Past Continuous y Present Perfect en voz pasiva.',
+    theory:{sections:[
+      {title:'¿Qué es la voz pasiva?',content:`En la voz <strong>activa</strong>, el sujeto hace la acción.<br>En la voz <strong>pasiva</strong>, el sujeto <em>recibe</em> la acción.<br><br>Usamos pasiva cuando la acción importa más que quien la hizo.`,
+       examples:[{lbl:'Activa',text:'The developer fixed the bug.'},{lbl:'Pasiva',text:'The bug was fixed by the developer.'}]},
+      {title:'Estructura general',formula:'Sujeto + TO BE (tiempo) + participio pasado (+ by + agente)'},
+      {title:'Los 3 tiempos del examen',table:[
+        {col1:'Past Simple Passive',col2:'was/were + p.p.',col3:'yesterday, last year, in 2018, before X'},
+        {col1:'Past Continuous Passive',col2:'was/were being + p.p.',col3:'while, when (+ interrupción)'},
+        {col1:'Present Perfect Passive',col2:'have/has been + p.p.',col3:'since, recently, in recent years'},
+      ],headers:['Tiempo','Estructura','Palabras clave']},
+      {title:'⚠️ was vs were',warn:'was → singular (the bug, the app, the system)\nwere → plural (the bugs, the apps, all modules)\n\nTruco: "it" → was / "they" → were'},
+    ]},
+    quiz:[
+      {q:'The operating system _______ by a team of engineers in 2018.',hint:'"in 2018" = tiempo específico pasado.',opts:['was developed','has been developed','was being developed'],correct:0,why:'"in 2018" → Past Simple Passive: was + developed.'},
+      {q:'While the new app _______, several bugs were discovered.',hint:'"While" = acción en progreso.',opts:['was developed','was being developed','has been developed'],correct:1,why:'"While" + otra acción pasada → Past Continuous Passive: was being + developed.'},
+      {q:'Many updates _______ since the product was launched.',hint:'"since" conecta pasado con presente.',opts:['were released','were being released','have been released'],correct:2,why:'"since" → Present Perfect Passive: have been + released.'},
+      {q:'The database _______ last year.',hint:'"last year" = tiempo específico.',opts:['was created','has been created','was being created'],correct:0,why:'"last year" → Past Simple Passive: was + created.'},
+      {q:'A new tool _______ when the company changed its requirements.',hint:'"when [interrupción]" = acción en progreso.',opts:['was designed','has been designed','was being designed'],correct:2,why:'"when + interrupción" → Past Continuous Passive: was being + designed.'},
+      {q:'Python _______ for many projects since its creation.',hint:'"since its creation" llega hasta hoy.',opts:['was used','was being used','has been used'],correct:2,why:'"since" → Present Perfect. Singular "Python" → has been + used.'},
+    ],
+    produce:[
+      {prompt:'Convertí a pasiva:\n"The developer fixed the login issue."',hint:'Past Simple. ¿Cuál es el objeto?',answer:'The login issue was fixed by the developer.',why:'"login issue" singular → was + fixed (p.p. regular).'},
+      {prompt:'Convertí a pasiva:\n"Developers have improved the user experience."',hint:'Present Perfect → Present Perfect Passive.',answer:'The user experience has been improved by developers.',why:'"user experience" singular → has been + improved.'},
+      {prompt:'Completá:\n"The OS _______ (test) when a critical error interrupted the process."',hint:'"when [interrupción]" → ¿qué tiempo?',answer:'was being tested',why:'Past Continuous Passive. "OS" singular → was being + tested.'},
+    ]
+  },
+  {
+    id:'conditionals', tag:'grammar', tagLabel:'Gramática',
+    name:'Zero & First Conditional',
+    desc:'Verdades generales vs posibilidades futuras.',
+    theory:{sections:[
+      {title:'Zero Conditional — siempre verdad',formula:'If + present simple,  present simple',
+       content:'Para cosas que <strong>siempre</strong> ocurren. Ley o regla técnica.',
+       examples:[{lbl:'Ejemplo',text:'If a loop has no exit condition, it runs forever.'},{lbl:'Con "when"',text:'When data enters the system, it is stored in the database.'}]},
+      {title:'First Conditional — posibilidad futura',formula:'If + present simple,  will + base verb',
+       content:'Para cosas que <strong>podrían ocurrir</strong> en el futuro.',
+       examples:[{lbl:'Ejemplo',text:'If the server fails, users will lose access.'},{lbl:'Ejemplo',text:"If you don't install the update, your device will be vulnerable."}]},
+      {title:'⚠️ Trampa más común',warn:'NUNCA "will" en la cláusula IF.\n❌ If the server will fail...\n✅ If the server fails...'},
+      {title:'Truco para elegir',content:'¿Esto es <strong>SIEMPRE verdad</strong>? → Zero (present simple en ambas partes)<br>¿Esto <strong>PODRÍA pasar</strong> en el futuro? → First (will en la segunda parte)'},
+    ]},
+    quiz:[
+      {q:'If you click this button, the form _______ (submit).',hint:'¿Hacer clic siempre envía el form?',opts:['submits','will submit','submitted'],correct:0,why:'Zero Conditional: siempre ocurre → present simple en ambas partes.'},
+      {q:'If the server _______, users will lose access.',hint:'"will lose" en la segunda parte. ¿Qué va en el IF?',opts:['will fail','fails','failed'],correct:1,why:'First Conditional. IF siempre en present simple. NUNCA "will" en el IF.'},
+      {q:'If a variable is not declared, JavaScript _______ a ReferenceError.',hint:'¿JavaScript siempre hace esto?',opts:['throws','will throw','threw'],correct:0,why:'Zero Conditional: regla de JavaScript. Siempre ocurre → present simple.'},
+      {q:"If we don't fix this bug, the client _______.",hint:'¿Consecuencia futura posible?',opts:['complains','will complain','complained'],correct:1,why:'First Conditional: consecuencia futura → will complain.'},
+    ],
+    produce:[
+      {prompt:'Completá:\n"If the internet connection _______ (be) slow, the app _______ (not work) properly."',hint:'¿La app siempre falla con conexión lenta?',answer:'is / does not work',why:'Zero Conditional. Regla general. Present simple en ambas partes.'},
+      {prompt:'Reescribí en First Conditional:\n"(You save your file) → (The changes appear on GitHub)"',hint:'If + presente simple, will + verbo base.',answer:'If you save your file, the changes will appear on GitHub.',why:'First Conditional. "save" (present simple) + "will appear" (will + base verb).'},
+    ]
+  },
+  {
+    id:'vocabulary', tag:'grammar', tagLabel:'Gramática',
+    name:'Technical Vocabulary',
+    desc:'Tipos de software y vocabulario técnico del examen.',
+    theory:{sections:[
+      {title:'Los 6 tipos de software',table:[
+        {col1:'System software',col2:'Gestiona hardware, permite que otros programas funcionen',col3:'Windows, macOS, Linux, drivers'},
+        {col1:'Application software',col2:'Ayuda a los USUARIOS a hacer tareas específicas',col3:'Word, Chrome, Spotify'},
+        {col1:'Programming software',col2:'Para DESARROLLADORES: crear, testear y mantener código',col3:'Compilers, IDEs, debuggers'},
+        {col1:'Utility software',col2:'Protege y optimiza el sistema. NO entretenimiento.',col3:'Antivirus, backup, disk cleanup'},
+        {col1:'Enterprise software',col2:'Para GRANDES organizaciones. NO personal.',col3:'CRM, ERP, HR systems'},
+        {col1:'Cloud-based software',col2:'Acceso por INTERNET. NO requiere instalación.',col3:'Google Drive, online suites'},
+      ],headers:['Tipo','Función clave','Ejemplos']},
+      {title:'⚠️ Confusiones más comunes',warn:'Application ≠ Programming software.\nApplication = para USUARIOS. Programming = para DESARROLLADORES.\n\nUtility software NO es entretenimiento.\nCloud software NO requiere instalación.\nEnterprise software NO es para uso personal.'},
+    ]},
+    vocab:[
+      {en:'engineer',es:'ingeniero',ex:'An engineer designed the secure platform.'},
+      {en:'database',es:'base de datos',ex:'All data is stored in a database.'},
+      {en:'server',es:'servidor',ex:'The server handles thousands of requests.'},
+      {en:'cloud',es:'nube',ex:'Files are saved in the cloud.'},
+      {en:'compiler',es:'compilador',ex:'A compiler converts code to machine language.'},
+      {en:'debugger',es:'depurador',ex:'A debugger helps find errors in code.'},
+      {en:'bitmap',es:'imagen de mapa de bits',ex:'Insert a bitmap image into the presentation.'},
+      {en:'copy and paste',es:'copiar y pegar',ex:'Use copy and paste to duplicate content.'},
+      {en:'coworker',es:'compañero de trabajo',ex:'A coworker shared feedback on the document.'},
+      {en:'encryption',es:'cifrado/encriptación',ex:'Encryption protects sensitive information.'},
+      {en:'deployment',es:'despliegue/publicación',ex:'The deployment was done last night.'},
+      {en:'vulnerability',es:'vulnerabilidad',ex:'A vulnerability was found in the system.'},
+    ],
+    quiz:[
+      {q:'Application software is mainly used to create and test programs.',hint:'¿Qué tipo de software sirve para CREAR programas?',opts:['TRUE','FALSE'],correct:1,why:'FALSE. Eso describe PROGRAMMING software. Application software ayuda a los USUARIOS a hacer tareas.'},
+      {q:'Cloud-based software requires users to install applications on their devices.',hint:'¿Cómo se accede al cloud software?',opts:['TRUE','FALSE'],correct:1,why:'FALSE. Cloud software se accede A TRAVÉS DE INTERNET. No requiere instalación.'},
+      {q:'Enterprise software is intended only for personal and home use.',hint:'¿Para quién es el enterprise software?',opts:['TRUE','FALSE'],correct:1,why:'FALSE. Enterprise software es para GRANDES ORGANIZACIONES.'},
+      {q:'Utility software can help protect computers from cybersecurity threats.',hint:'¿Qué hace el utility software?',opts:['TRUE','FALSE'],correct:0,why:'TRUE. Los antivirus son utility software y protegen contra amenazas de ciberseguridad.'},
+    ],
+    produce:[
+      {prompt:'Explicá en inglés simple:\n¿Cuál es la diferencia entre application software y programming software?',hint:'Pensá en QUIÉN usa cada uno y PARA QUÉ.',answer:'Application software is designed for USERS to accomplish specific tasks (writing, browsing). Programming software is designed for DEVELOPERS to create, test, and maintain programs (compilers, IDEs, debuggers).',why:'Distinción clave: usuarios vs desarrolladores.'},
+    ]
+  },
+  {
+    id:'was-were', tag:'error', tagLabel:'⚠️ Error del parcial',
+    name:'was/were vs is/are',
+    desc:'El error que costó el parcial. Presente vs pasado en voz pasiva.',
+    theory:{sections:[
+      {title:'¿Cuál fue el error?',content:`En el parcial, la consigna pedía <strong>Past Simple Passive</strong> pero se escribió <strong>is/are</strong> (presente) en lugar de <strong>was/were</strong> (pasado).<br><br>La consigna siempre te dice qué tiempo usar. Si dice <strong>"Simple Past"</strong> → siempre <strong>was/were</strong>, sin excepción.`,
+       examples:[{lbl:'❌ Error',text:'A new architecture are deployed.'},{lbl:'✅ Correcto',text:'A new architecture was deployed. (singular → was)'}]},
+      {title:'Regla completa',formula:'PRESENTE → is/are + p.p.     PASADO → was/were + p.p.',
+       content:'<strong>was</strong> → singular pasado: "The bug <strong>was fixed</strong> yesterday."<br><strong>were</strong> → plural pasado: "The bugs <strong>were fixed</strong> yesterday."'},
+      {title:'⚠️ Los 4 errores del parcial corregidos',
+       examples:[
+         {lbl:'❌ Error 1',text:'A new microservices architecture are deployed.'},
+         {lbl:'✅ Correcto',text:'A new microservices architecture was deployed. (singular → was)'},
+         {lbl:'❌ Error 2',text:'A critical vulnerability is patched.'},
+         {lbl:'✅ Correcto',text:'A critical vulnerability was patched. (singular → was)'},
+       ]},
+    ]},
+    quiz:[
+      {q:'Simple Past Passive:\n"The engineering team deployed a new architecture."\n→ A new architecture _______ by the engineering team.',hint:'"architecture" singular. Consigna pide PASADO.',opts:['is deployed','are deployed','was deployed','were deployed'],correct:2,why:'Past Simple Passive. "architecture" = singular → WAS. "is/are" sería presente — incorrecto.'},
+      {q:'Simple Past Passive:\n"A cybersecurity analyst patched a critical vulnerability."\n→ A critical vulnerability _______.',hint:'"vulnerability" = singular. Pasado.',opts:['is patched','are patched','was patched','were patched'],correct:2,why:'"vulnerability" singular → WAS patched.'},
+      {q:'Simple Past Passive:\n"The developers fixed several bugs last night."\n→ Several bugs _______ last night.',hint:'"bugs" plural. Pasado.',opts:['is fixed','are fixed','was fixed','were fixed'],correct:3,why:'"bugs" plural → WERE fixed.'},
+      {q:'¿Cuál es correcta?\n"The system is updated automatically." vs "The system was updated last night."',hint:'¿Cuál tiene tiempo específico en el pasado?',opts:['La primera es pasado','La segunda es pasado','Ambas son pasado','Ambas son presente'],correct:1,why:'"is" = presente. "was" = pasado. Esta es la distinción clave del parcial.'},
+    ],
+    produce:[
+      {prompt:'Consigna: Simple Past Passive.\nConvertí las 4 oraciones del parcial:\n1. "The engineering team deployed a new microservices architecture."\n2. "A cybersecurity analyst patched a critical vulnerability."\n3. "The developers refactored the legacy codebase."\n4. "The product team launched a redesigned mobile application."',
+       hint:'Todas son singular. Todas son pasado. Siempre: was + participio pasado.',
+       answer:'1. A new microservices architecture was deployed by the engineering team.\n2. A critical vulnerability was patched in the production environment.\n3. The legacy codebase was refactored by the developers.\n4. A redesigned mobile application was launched by the product team.',
+       why:'Las 4 son singular → WAS en todas. Nunca "is/are" cuando la consigna pide Simple Past.'},
+    ]
+  },
+];
+
+// ── SECCIÓN 2: SITUACIONES PROBLEMÁTICAS ────────────────────────────
+const SRS_TOPICS = [
+  {
+    id:'srs-transport', tag:'srs', tagLabel:'Situación Problemática',
+    name:'Transport App',
+    desc:'Entrevista cliente-desarrollador. Extraé FR, NFR, actores y reglas de negocio.',
+    interview:`<strong>Chris (Dev/PM):</strong> Good morning! Thank you for meeting with us today.<br>
+<span class="client"><strong>Megan (Client):</strong> Good morning. We need a mobile application that connects passengers with drivers in a simple, secure, and efficient way.</span><br>
+<strong>Chris:</strong> Who will use the application?<br>
+<span class="client"><strong>Megan:</strong> Three types of users: passengers, drivers, and administrators.</span><br>
+<strong>Chris:</strong> What features should passengers have?<br>
+<span class="client"><strong>Megan:</strong> Passengers should be able to: register and log in, edit their profile, save favorite locations, request a ride, view the estimated fare before confirming, track the driver in real time, pay by credit card, debit card or cash, rate the driver after each trip, and view their trip history.</span><br>
+<strong>Chris:</strong> What functions are required for drivers?<br>
+<span class="client"><strong>Megan:</strong> Drivers should be able to: register with personal information and driver's license, upload vehicle documents, accept or reject ride requests, navigate to the passenger's location, start and finish trips, view daily and monthly earnings, and receive passenger ratings.</span><br>
+<strong>Chris:</strong> What should the administrator manage?<br>
+<span class="client"><strong>Megan:</strong> The administrator should: manage passengers and drivers, approve driver registrations, monitor active trips, generate reports, manage payments, and handle customer complaints.</span><br>
+<strong>Chris:</strong> What about quality requirements?<br>
+<span class="client"><strong>Megan:</strong> The app should respond in less than 3 seconds, be available 7 days a week, support Android and iOS, and handle thousands of simultaneous users. Passwords must be encrypted and payments must be processed securely.</span><br>
+<strong>Chris:</strong> Any business rules?<br>
+<span class="client"><strong>Megan:</strong> Drivers must have valid documents before accepting rides. Passengers must confirm the destination before requesting a trip. The fare is calculated based on distance, time, and traffic. Both passengers and drivers can cancel a ride before it starts. Users can report incidents after completing a trip.</span><br>
+<strong>Chris:</strong> Future features?<br>
+<span class="client"><strong>Megan:</strong> Ride scheduling, carpooling options, promotional discount codes, and AI-based route optimization.</span>`,
+    steps:[
+      {
+        id:'fr', title:'Paso 1 — Functional Requirements',
+        desc:'Escribí mínimo 5 FR en formato "The system shall [acción]." Recordá: FR = qué hace el sistema.',
+        model:`FR-01: The system shall allow users to register and log in.
+FR-02: The system shall allow passengers to request a ride from their current location.
+FR-03: The system shall allow passengers to view the estimated fare before confirming.
+FR-04: The system shall allow passengers to track the driver's location in real time.
+FR-05: The system shall allow drivers to accept or reject ride requests.
+FR-06: The system shall calculate trip distance and estimated cost.
+FR-07: The system shall send notifications to drivers and passengers.
+FR-08: The system shall store the trip history for each user.`,
+        tip:'Cada FR describe una acción que un usuario puede hacer en el sistema. Usá siempre "shall".'
+      },
+      {
+        id:'nfr', title:'Paso 2 — Non-Functional Requirements',
+        desc:'Escribí mínimo 3 NFR. Recordá: NFR = qué tan bien funciona el sistema (velocidad, seguridad, disponibilidad).',
+        model:`NFR-01: The system shall respond to user requests in less than 3 seconds under normal load. (Performance)
+NFR-02: The system shall be available 7 days a week, 24 hours a day. (Availability)
+NFR-03: The system shall support at least 10,000 simultaneous users. (Scalability)
+NFR-04: The system shall be compatible with Android and iOS devices. (Portability)`,
+        tip:'NFR no describe lo que el sistema hace, sino cómo lo hace. Siempre medible.'
+      },
+      {
+        id:'moscow', title:'Paso 3 — Priorización MoSCoW',
+        desc:'Reescribí 4 requerimientos usando must / should / could / won\'t según su prioridad.',
+        model:`MUST: The system must allow user registration and authentication.
+MUST: The system must process online payments securely.
+SHOULD: The system should allow passengers to rate drivers after each trip.
+COULD: The system could support ride scheduling for future trips.
+WON'T: The system won't implement AI-based route optimization in the current version.`,
+        tip:'Must = sin esto la app no funciona. Should = importante. Could = futuro. Won\'t = descartado ahora.'
+      },
+      {
+        id:'actors', title:'Paso 4 — Actores y Casos de Uso',
+        desc:'Identificá los actores y listá mínimo 3 casos de uso por actor. Formato: Verbo + Complemento.',
+        model:`Passenger: Request a ride / Track driver location / Pay for a ride / Rate the driver / View trip history
+Driver: Accept or reject ride requests / Navigate to passenger location / Start and finish trips / View daily earnings
+Administrator: Approve driver registrations / Monitor active trips / Generate reports / Handle customer complaints`,
+        tip:'Los casos de uso son acciones concretas. Sin conjugar, como títulos: "Request a ride", no "Requests a ride".'
+      },
+      {
+        id:'passive', title:'Paso 5 — Reglas de Negocio en Voz Pasiva',
+        desc:'Reescribí mínimo 3 reglas de negocio en voz pasiva. Formato: "[Objeto] must/shall be [p.p.] by [agente]."',
+        model:`1. Valid documents must be presented by drivers before rides are accepted.
+2. The destination must be confirmed by passengers before a trip is requested.
+3. The fare shall be calculated based on distance, time, and traffic conditions.
+4. A ride can be cancelled by either passengers or drivers before it starts.`,
+        tip:'Identificá el objeto de la oración activa → se convierte en sujeto de la pasiva.'
+      },
+    ]
+  },
+  {
+    id:'srs-library', tag:'srs', tagLabel:'Situación Problemática',
+    name:'Library Management System',
+    desc:'Entrevista con director de biblioteca. Extraé FR, NFR, actores y reglas de negocio.',
+    interview:`<strong>Ana (Dev/PM):</strong> Good morning, Roberto. Thank you for your time today.<br>
+<span class="client"><strong>Roberto (Library Director):</strong> Good morning. We need a system to manage our library. Right now everything is done on paper and it's very slow.</span><br>
+<strong>Ana:</strong> What should the system allow users to do?<br>
+<span class="client"><strong>Roberto:</strong> Members should be able to search for books by title, author, or category. They should also be able to reserve a book online and renew their loan without coming to the library.</span><br>
+<strong>Ana:</strong> What about librarians?<br>
+<span class="client"><strong>Roberto:</strong> Librarians need to register new books, manage member accounts, record loans and returns, and send automatic reminders when a book is overdue.</span><br>
+<strong>Ana:</strong> Quality requirements?<br>
+<span class="client"><strong>Roberto:</strong> Searches must return results in under 2 seconds. Available Monday to Saturday. Around 500 simultaneous users during peak hours.</span><br>
+<strong>Ana:</strong> Business rules?<br>
+<span class="client"><strong>Roberto:</strong> A member can borrow a maximum of 5 books at a time. Loans last 14 days. If a book is not returned on time, the member cannot borrow again until they return it. Damaged books must be reported by the member.</span><br>
+<strong>Ana:</strong> Future features?<br>
+<span class="client"><strong>Roberto:</strong> A mobile app and maybe an AI recommendation system based on reading history.</span>`,
+    steps:[
+      {id:'fr',title:'Paso 1 — Functional Requirements',desc:'Escribí mínimo 5 FR en formato "The system shall [acción]."',
+       model:`FR-01: The system shall allow members to search for books by title, author, or category.
+FR-02: The system shall allow members to reserve a book online.
+FR-03: The system shall allow members to renew a loan without visiting the library.
+FR-04: The system shall allow librarians to register new books in the catalog.
+FR-05: The system shall allow librarians to manage member accounts.
+FR-06: The system shall record book loans and returns.
+FR-07: The system shall send automatic reminders to members when a book is overdue.`,
+       tip:'Distinguí entre lo que hace el Member y lo que hace el Librarian.'},
+      {id:'nfr',title:'Paso 2 — Non-Functional Requirements',desc:'Escribí mínimo 3 NFR.',
+       model:`NFR-01: The system shall return search results in less than 2 seconds. (Performance)
+NFR-02: The system shall be available Monday to Saturday during library hours. (Availability)
+NFR-03: The system shall support up to 500 simultaneous users during peak hours. (Scalability)`,
+       tip:'Los NFR tienen números medibles: "2 seconds", "500 users", "Monday to Saturday".'},
+      {id:'moscow',title:'Paso 3 — Priorización MoSCoW',desc:'Reescribí 4 requerimientos con must/should/could/won\'t.',
+       model:`MUST: The system must allow members to search for books by title, author, or category.
+MUST: The system must record loans and returns accurately.
+SHOULD: The system should send automatic reminders for overdue books.
+COULD: The system could provide AI-based book recommendations based on reading history.
+WON'T: The system won't support a mobile app in the current version.`,
+       tip:'Las features futuras mencionadas por el cliente suelen ser COULD o WON\'T.'},
+      {id:'actors',title:'Paso 4 — Actores y Casos de Uso',desc:'Listá mínimo 3 casos de uso por actor.',
+       model:`Member: Search for books / Reserve a book online / Renew a loan / Report a damaged book
+Librarian: Register new books / Manage member accounts / Record loans and returns / Send overdue reminders
+Administrator: Generate usage reports / Manage system settings / Monitor system availability`,
+       tip:'En este sistema hay 3 actores: Member, Librarian, Administrator.'},
+      {id:'passive',title:'Paso 5 — Reglas de Negocio en Voz Pasiva',desc:'Reescribí mínimo 3 reglas en voz pasiva.',
+       model:`1. A maximum of 5 books can be borrowed by a member at a time.
+2. Loans must be returned within 14 days by members.
+3. Damaged books must be reported by the member immediately.
+4. New borrowing privileges shall be suspended until overdue books are returned.`,
+       tip:'Regla de negocio = restricción del sistema. Siempre en pasiva para los requerimientos formales.'},
+    ]
+  },
+  {
+    id:'srs-nimbuscloud', tag:'srs', tagLabel:'Situación Problemática',
+    name:'NimbusCloud — Incident Response',
+    desc:'Tabla de incidentes reales. Completá acciones estándar, traducí al español e identificá términos técnicos.',
+    interview:`<strong style="color:var(--yellow)">📋 Incident Response Table — NimbusCloud Data Platform</strong><br><br>
+<strong>Incident 1: Error 429 — Too Many Requests</strong><br>
+<span class="client">Root cause: A single client exceeded the rate limit by sending more than 100 API calls per minute, above the threshold of the current subscription tier.</span><br><br>
+<strong>Incident 2: Stale Cache Read</strong><br>
+<span class="client">Root cause: The cache invalidation job failed silently after a deployment, so users kept receiving outdated inventory data even though the underlying database had been updated.</span><br><br>
+<strong>Incident 3: Deadlock Detected (Error 1213)</strong><br>
+<span class="client">Root cause: Two concurrent transactions attempted to update the same rows in reverse order, each holding a lock the other needed to proceed.</span><br><br>
+<strong>Incident 4: Webhook Delivery Failure</strong><br>
+<span class="client">Root cause: The receiving endpoint returned a 500 Internal Server Error three times in a row — the partner's server was undergoing unscheduled maintenance.</span><br><br>
+<strong>Incident 5: Data Drift in ML Model</strong><br>
+<span class="client">Root cause: The statistical distribution of incoming production data diverged significantly from the distribution the model had been trained on, degrading prediction accuracy over time.</span>`,
+    steps:[
+      {
+        id:'actions', title:'Paso 1 — Standard Actions Required',
+        desc:'Para cada incidente, escribí la acción estándar en formato SRS: "The system shall..." + verbos modales según prioridad.',
+        model:`Error 429: The affected client shall be throttled immediately. The API key shall be temporarily suspended if the limit continues to be exceeded. The on-call engineer shall be notified.
+
+Stale Cache Read: The cache shall be manually invalidated and flushed. The cache invalidation job shall be reviewed and fixed. A fallback mechanism shall be implemented to detect silent failures.
+
+Deadlock (1213): Both transactions shall be automatically rolled back. The system shall retry using exponential backoff. The database access order shall be standardized to prevent future deadlocks.
+
+Webhook Failure: The system shall retry delivery using exponential backoff up to 5 times. If all attempts fail, the payload shall be moved to a dead-letter queue. The on-call engineer shall be notified.
+
+Data Drift: The on-call engineer shall be notified immediately. The model shall be retrained using recent production data. Automated drift monitoring shall be implemented.`,
+        tip:'Cada acción usa "shall" para obligación formal. "must" para lo crítico. Seguí el patrón: detectar → resolver → prevenir.'
+      },
+      {
+        id:'translation', title:'Paso 2 — Traducción técnica al español',
+        desc:'Traducí los 5 incidentes con sus causas y acciones. Usá el glosario — no traduzcas palabra por palabra.',
+        model:`Error 429 → Demasiadas solicitudes
+Causa: Un cliente superó el límite de solicitudes enviando más de 100 llamadas por minuto.
+Acción: Las solicitudes serán reguladas de inmediato. La clave de API será suspendida temporalmente. Se notificará al ingeniero de guardia.
+
+Stale Cache → Lectura de caché desactualizada
+Causa: El proceso de invalidación de caché falló sin generar alertas tras un despliegue.
+Acción: La caché será invalidada y vaciada. El proceso será revisado. Se implementará un mecanismo de respaldo.
+
+Deadlock → Interbloqueo detectado
+Causa: Dos transacciones concurrentes intentaron actualizar las mismas filas en orden inverso.
+Acción: Ambas transacciones serán revertidas. El sistema reintentará con espera exponencial.
+
+Webhook → Falla en la entrega del webhook
+Causa: El endpoint devolvió Error 500 tres veces consecutivas por mantenimiento no programado.
+Acción: Se reintentará con espera exponencial hasta 5 veces. El payload irá a la cola de mensajes fallidos.
+
+Data Drift → Desviación de datos en modelo ML
+Causa: Los datos de producción se alejaron de la distribución original del entrenamiento.
+Acción: El modelo será reentrenado. Se implementará monitoreo automático de desviación.`,
+        tip:'Términos clave: throttle=regular solicitudes | rollback=revertir | dead-letter queue=cola de mensajes fallidos | on-call engineer=ingeniero de guardia | data drift=desviación de datos | failed silently=falló sin generar alertas.'
+      },
+      {
+        id:'matching', title:'Paso 3 — Terminology Matching',
+        desc:'Relacioná cada término con su definición correcta:\n1. rollback  2. throttle  3. dead-letter queue  4. data drift  5. on-call engineer\n\na. Storage for payloads that failed after repeated delivery attempts.\nb. To deliberately limit how fast requests are processed.\nc. Returning a system to a previously stable state after an error.\nd. The team member currently responsible for responding to incidents.\ne. A change in input data that reduces a model\'s prediction accuracy.',
+        model:`1. rollback → c. Returning a system to a previously stable state after an error.
+2. throttle → b. To deliberately limit how fast requests are processed.
+3. dead-letter queue → a. Storage for payloads that failed after repeated delivery attempts.
+4. data drift → e. A change in input data that reduces a model's prediction accuracy.
+5. on-call engineer → d. The team member currently responsible for responding to incidents.`,
+        tip:'Respuestas: 1→c | 2→b | 3→a | 4→e | 5→d'
+      },
+      {
+        id:'report', title:'Paso 4 — Incident Report Translation',
+        desc:'Traducí este fragmento manteniendo el registro formal y todos los detalles técnicos:\n\n"At 03:14 UTC, the monitoring system triggered a critical alert after detecting an unusual spike in failed login attempts originating from a single IP range. Although the security team was not immediately able to determine whether the traffic was malicious, the affected endpoint was automatically placed behind a temporary rate limit as a precautionary measure. Once the pattern had been confirmed as a credential-stuffing attempt, the offending IP range was permanently blocked, and all potentially compromised accounts were forced to reset their passwords before regaining access."',
+        model:`A las 03:14 UTC, el sistema de monitoreo disparó una alerta crítica tras detectar un aumento inusual en los intentos fallidos de inicio de sesión provenientes de un único rango de direcciones IP. Aunque el equipo de seguridad no pudo determinar de inmediato si el tráfico era malicioso, el endpoint afectado fue automáticamente colocado detrás de un límite de solicitudes temporal como medida de precaución. Una vez que el patrón fue confirmado como un ataque de relleno de credenciales (credential stuffing), el rango de IP responsable fue bloqueado de forma permanente y todas las cuentas potencialmente comprometidas fueron obligadas a restablecer sus contraseñas antes de recuperar el acceso.`,
+        tip:`Claves: "triggered" = disparó (no "activó"). "rate limit" = límite de solicitudes. "credential-stuffing" se mantiene en inglés con aclaración. "offending IP range" = rango de IP responsable.`
+      },
+      {
+        id:'passive-incidents', title:'Paso 5 — Voz Pasiva en Incidentes',
+        desc:'Reescribí en voz pasiva estas 3 oraciones activas de la tabla:\n1. The system automatically retried the webhook delivery.\n2. The on-call engineer resolved the deadlock issue.\n3. Engineers retrained the ML model using recent production data.',
+        model:`1. The webhook delivery was automatically retried by the system.
+2. The deadlock issue was resolved by the on-call engineer.
+3. The ML model was retrained by engineers using recent production data.`,
+        tip:'Estructura: Objeto + was/were + participio pasado (+ by + agente). Todos son Past Simple Passive.'
+      },
+    ]
+  },
+  {
+    id: 'srs-profile',
+    tag: 'srs',
+    tagLabel: 'Situación Problemática',
+    name: 'Professional Profile',
+    desc: 'Escribí un perfil profesional en inglés combinando vocabulario técnico + voz activa y pasiva.',
+    interview: `<strong style="color:var(--yellow)">📋 Contexto — Writing a Professional Profile</strong><br><br>
+<span class="client">You are a junior software developer writing your LinkedIn profile. Your profile must include technical vocabulary, sentences in active voice to show initiative, and at least 2 sentences in passive voice to emphasize results. Structure: introduction → experience/skills → career goal.</span><br><br>
+<strong>Vocabulary Bank (definí cada término antes de escribir):</strong><br>
+<span class="client">RESTful API — Version control — Containerization — CI/CD pipeline — Microservices architecture — Unit testing — Technical debt — Scalability</span><br><br>
+<strong>Active vs Passive Voice reminder:</strong><br>
+<span class="client">Active (iniciativa propia): "I designed...", "I built...", "I led..."<br>
+Passive (resultados/trabajo compartido): "the system was optimized...", "tests were implemented..."</span>`,
+    steps: [
+      {
+        id: 'vocab',
+        title: 'Paso 1 — Vocabulary Bank',
+        desc: 'Escribí una definición en inglés con tus propias palabras para cada término. No copies del diccionario.',
+        model: `RESTful API: A type of web service that allows systems to communicate over HTTP using standard methods like GET, POST, PUT and DELETE.
+Version control: A system that tracks changes in code over time and allows developers to collaborate and revert to previous versions. Git is the most popular tool.
+Containerization: A method of packaging an application with all its dependencies into a single unit (container) that works the same in any environment. Docker is the most common tool.
+CI/CD pipeline: A set of automated processes that integrate code changes (CI) and deploy them to production automatically (CD), reducing errors and speeding up delivery.
+Microservices architecture: A design approach where the application is divided into small, independent services that communicate through APIs, making the system easier to scale.
+Unit testing: The practice of writing automated tests that check whether a specific function or module works correctly, helping catch bugs early.
+Technical debt: The extra work that accumulates when developers choose a quick solution instead of a better one. It must eventually be fixed by refactoring.
+Scalability: The ability of a system to handle a growing number of users or requests without losing performance.`,
+        tip: 'Usá tus propias palabras — la profe puede preguntar. Si podés dar un ejemplo concreto (Docker, Git), mejor.'
+      },
+      {
+        id: 'active-passive',
+        title: 'Paso 2 — Active vs Passive Voice',
+        desc: 'Reescribí cada oración cambiando de activa a pasiva o viceversa:\n1. The team deployed the application on AWS. (Active → Passive)\n2. Several bugs were identified during testing. (Passive → Active)\n3. I optimized the database queries. (Active → Passive)\n4. The API was integrated by the backend team. (Passive → Active)\n5. We migrated the legacy system to microservices. (Active → Passive)',
+        model: `1. The application was deployed on AWS by the team.
+2. The QA team identified several bugs during testing.
+3. The database queries were optimized by me.
+4. The backend team integrated the API.
+5. The legacy system was migrated to microservices by our team.`,
+        tip: 'Activa → Pasiva: Objeto + was/were + p.p. (+ by + agente). Pasiva → Activa: el agente (by X) se convierte en sujeto.'
+      },
+      {
+        id: 'profile-writing',
+        title: 'Paso 3 — Escribí tu perfil (200-300 palabras)',
+        desc: 'Elegí Opción A (junior developer) y escribí tu perfil completo. Debe incluir: vocabulario del banco, oraciones en activa Y 2 en pasiva, estructura clara (intro - experiencia - meta).',
+        model: `I am a junior software developer currently completing the Tecnicatura Superior en Desarrollo de Software at I.S.P.R.M.M. in Formosa, Argentina. I began teaching myself programming in 2021 and have since built practical experience across the full development stack, working with Python, PHP (Laravel), JavaScript, and Vue.js. I am passionate about writing clean, maintainable code and developing solutions that solve real problems.
+
+Throughout my studies and independent projects, I have designed and developed several web applications, including a RESTful API for an e-commerce management system and an HTML-based order management tool for a local business. I work regularly with PostgreSQL and MySQL for database management, and I use Git and GitHub for version control on every project. A scalable microservices architecture was used as the foundation for one of my team projects, and automated unit tests were implemented to ensure code reliability before deployment.
+
+I am currently developing my skills in CI/CD pipelines and containerization with Docker, and I have a strong interest in system architecture and backend performance optimization. I am looking for a junior developer role where I can contribute to real projects, continue learning from experienced teams, and grow into a full-stack or backend specialist position.`,
+        tip: 'Las dos frases en pasiva son: "was used as the foundation" y "were implemented" — énfasis en el resultado del equipo, no en el individuo. El resto en activa para mostrar iniciativa propia.'
+      },
+      {
+        id: 'checklist',
+        title: 'Paso 4 — Self-Review Checklist',
+        desc: 'Revisá tu perfil contra estos criterios antes de entregarlo:',
+        model: `✅ Technical vocabulary is used correctly (RESTful API, version control, CI/CD, scalability, etc.)
+✅ Both active and passive voice appear naturally — not forced.
+✅ The profile is well organized: introduction → experience/skills → career goal.
+✅ There are no major grammar mistakes.
+✅ The tone is professional and confident — no informal expressions.
+✅ Word count is between 200 and 300 words.`,
+        tip: 'Si tu perfil suena como una lista de palabras técnicas sin conexión, reescribí las oraciones para que fluyan naturalmente.'
+      }
+    ]
+  },
+  {
+    id: 'srs-shopsmart',
+    tag: 'srs',
+    tagLabel: 'Situación Problemática',
+    name: 'ShopSmart — Incident Report',
+    desc: 'Unauthorized data access en una API de producción. Escribí el informe formal completo.',
+    interview: `<strong style="color:var(--yellow)">📋 Situación — ShopSmart Order Management API</strong><br><br>
+<span class="client"><strong>Sistema:</strong> ShopSmart (plataforma e-commerce para pequeñas empresas)<br>
+<strong>Fecha:</strong> 1 de septiembre de 2026 | <strong>Severidad:</strong> HIGH | <strong>Estado:</strong> Resuelto</span><br><br>
+<strong>¿Qué pasó?</strong><br>
+<span class="client">Un cliente reportó que podía ver los datos del pedido de otro cliente (nombre, dirección, teléfono) simplemente cambiando un número en la URL: /api/order/1042 → /api/order/1043. El equipo de seguridad confirmó que no era un caso aislado.</span><br><br>
+<strong>Timeline:</strong><br>
+<span class="client">10:00 AM — Cliente reporta el problema al soporte.<br>
+10:20 AM — Un agente reproduce el problema y confirma la vulnerabilidad.<br>
+10:40 AM — El equipo de seguridad revisa los logs: miles de requests secuenciales desde una misma IP en las últimas 48 horas.<br>
+11:00 AM — Code review: el endpoint devuelve cualquier pedido por su ID sin verificar si el usuario autenticado es el dueño.<br>
+11:15 AM — Se confirma: los IDs son secuenciales (fáciles de adivinar) y no hay ownership check.<br>
+11:45 AM — Fix temporal: se agrega verificación de ownership antes de devolver datos.<br>
+12:30 PM — Endpoint corregido desplegado en producción. Vulnerabilidad confirmada como resuelta.</span><br><br>
+<strong>Código vulnerable encontrado (Flask/Python):</strong><br>
+<span class="client">@app.route('/api/order/&lt;order_id&gt;')<br>
+def get_order(order_id):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;order = Order.query.get(order_id)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;return jsonify(order.to_dict())<br><br>
+Problema: nunca verifica si el usuario autenticado es el dueño del pedido.</span><br><br>
+<strong>Vocabulario clave:</strong><br>
+<span class="client">unauthorized access • access control • authorization check • data exposure • sensitive information • vulnerability • security breach • root cause • security patch • production environment • penetration testing • secure coding practices</span>`,
+    steps: [
+      {
+        id: 'challenge',
+        title: 'Paso 1 — Challenge Question',
+        desc: 'Respondé en 3-5 oraciones: ¿Por qué no fue suficiente que el endpoint devolviera los datos correctamente? Conectá estos conceptos: API endpoint → user authentication → ownership verification → order ID → unauthorized access.',
+        model: `The endpoint was able to retrieve and return order data correctly from the database; however, it lacked a critical security layer: authorization verification. Although users were authenticated — meaning the system confirmed their identity — the application never verified ownership: it did not check whether the authenticated user was actually the owner of the requested order. Because order IDs were assigned sequentially, any authenticated user could enumerate them by simply incrementing the number in the URL. As a result, authentication alone was insufficient to prevent unauthorized access; the missing ownership check was the fundamental vulnerability that allowed data exposure to occur.`,
+        tip: 'Diferencia clave: autenticación = "¿quién sos?" / autorización = "¿tenés permiso para ver ESTO?". El endpoint hacía lo primero pero no lo segundo.'
+      },
+      {
+        id: 'executive-summary',
+        title: 'Paso 2 — Executive Summary',
+        desc: 'Escribí el resumen ejecutivo (~80 palabras). Debe responder: ¿Qué pasó? ¿Cuándo? ¿Qué sistema fue afectado? ¿Cuál fue el impacto? NO copies el timeline — resumí con tus propias palabras.',
+        model: `On September 1st, 2026, a critical security incident was identified in the ShopSmart Order Management API running in the production environment. A customer reported that they had been able to access another customer's order details — including their home address and phone number — simply by modifying a numeric identifier in the browser URL. The security team confirmed that this was not an isolated event: server logs revealed thousands of sequential requests from a single external IP address over the preceding 48 hours, indicating that sensitive customer data had likely been exposed to unauthorized parties. The affected endpoint was taken offline within the hour and a corrective patch was deployed by 12:30 PM.`,
+        tip: 'Executive Summary = escrito al final, leído primero. No copies el timeline cronológicamente — sintetizá el impacto total.'
+      },
+      {
+        id: 'root-cause',
+        title: 'Paso 3 — Root Cause Analysis',
+        desc: 'Identificá y explicá: 1) La causa raíz real. 2) El factor agravante. 3) Distinguí Root Cause / Symptom / Trigger.',
+        model: `ROOT CAUSE: The absence of an ownership authorization check in the API endpoint. The endpoint retrieved any order using only the order ID in the URL, without verifying whether the authenticated user was the legitimate owner. This is a classic Broken Object Level Authorization (BOLA) vulnerability.
+
+CONTRIBUTING FACTOR: Sequential, predictable order IDs made the problem significantly worse. Because IDs were assigned incrementally (1041, 1042, 1043...), an attacker could enumerate all orders by iterating through consecutive numbers.
+
+Root Cause → Missing ownership authorization check in /api/order/<id>
+Symptom → Customers accessing other users' order data; logs showing thousands of sequential requests from one IP
+Trigger → A customer's report on September 1st that prompted the security team to investigate`,
+        tip: 'La causa raíz NO es "el cliente cambió el número en la URL" — eso es el trigger. La causa raíz es que el código nunca preguntó "¿este pedido te pertenece?"'
+      },
+      {
+        id: 'actions',
+        title: 'Paso 4 — Preventative & Corrective Actions',
+        desc: 'Escribí mínimo 4 acciones. Para cada una: qué se hace + por qué reduce el riesgo. Usá Present Perfect para lo ya implementado y will para lo planificado.',
+        model: `Action 1 — Ownership Authorization Check (Implemented): An authorization check has been added to the affected endpoint. The system now verifies that the authenticated user's ID matches the order owner before returning any data. This directly addresses the root cause by enforcing object-level access control.
+
+Action 2 — Non-Sequential Order Identifiers (Planned): The development team will replace sequential numeric IDs with randomly generated UUIDs. This will eliminate the ability to enumerate order records by iterating through predictable identifiers.
+
+Action 3 — Automated Security Testing (Planned): The team will integrate automated authorization tests into the CI/CD pipeline and conduct a full security code review of all API endpoints. This will ensure similar vulnerabilities are identified before reaching production.
+
+Action 4 — Enhanced Monitoring and Alerting (Implemented): Monitoring rules have been configured to trigger automatic alerts when a single IP address sends an unusually high number of requests to the same endpoint. This allows the security team to detect enumeration attempts in real time.
+
+Action 5 — Developer Training (Planned): The team will conduct a mandatory secure coding workshop covering authentication vs authorization, BOLA vulnerabilities, and OWASP API Security Top 10.`,
+        tip: 'Presente perfecto (has been added, have been configured) = ya hecho. Will + base verb (will replace, will integrate) = planificado. Nunca mezcles los tiempos en la misma acción.'
+      },
+      {
+        id: 'conclusion',
+        title: 'Paso 5 — Conclusion',
+        desc: 'Escribí el cierre del informe (~50 palabras): estado actual del sistema + próximos pasos.',
+        model: `The ShopSmart Order Management API has been restored to full operation as of 12:30 PM on September 1st, 2026. The immediate vulnerability has been patched and verified. The corrective and preventative actions described above will be implemented over the coming weeks to strengthen the platform's security posture. The development team will conduct a comprehensive review of all API endpoints to ensure equivalent authorization checks are in place throughout the system.`,
+        tip: 'El Conclusion no repite el Executive Summary — habla del estado ACTUAL y los pasos FUTUROS. Usá Present Perfect para lo resuelto y will para lo que viene.'
+      }
+    ]
+  },
+];
+
+// ── SECCIÓN 3: TROUBLESHOOTING (nuevo tema) ──────────────────────────
+const TROUBLESHOOTING_TOPICS = [
+  {
+    id:'troubleshooting-vocab', tag:'srs', tagLabel:'Nuevo Tema',
+    name:'Troubleshooting',
+    desc:'Vocabulario y proceso de resolución de problemas de software.',
+    theory:{sections:[
+      {title:'¿Qué es Troubleshooting?',content:`Troubleshooting es el proceso de <strong>identificar, analizar y resolver</strong> problemas o errores en un sistema de software.<br><br>Es la habilidad más importante para la entrevista oral del final — te van a dar un problema y tenés que resolverlo en inglés.`},
+      {title:'Los 7 pasos del Troubleshooting',table:[
+        {col1:'1. Identify',col2:'Determinar qué está fallando',col3:'"The system throws a 409 error."'},
+        {col1:'2. Reproduce',col2:'Hacer que el problema ocurra de nuevo',col3:'"The error occurs when two users buy simultaneously."'},
+        {col1:'3. Gather Info',col2:'Recolectar logs, mensajes de error, cambios recientes',col3:'"The logs show a database conflict."'},
+        {col1:'4. Find Cause',col2:'Analizar qué causa el problema',col3:'"The root cause is a race condition."'},
+        {col1:'5. Test Solution',col2:'Aplicar una solución y verificar',col3:'"We applied a transaction lock and retested."'},
+        {col1:'6. Verify',col2:'Confirmar que el problema fue resuelto',col3:'"The conflict no longer occurs under load testing."'},
+        {col1:'7. Document',col2:'Registrar el problema, causa y solución',col3:'"The incident was documented in the SRS."'},
+      ],headers:['Paso','Acción','Ejemplo']},
+      {title:'Vocabulario clave',warn:'status code → código de estado (número que indica resultado de una operación)\nroot cause → causa raíz (origen real del problema)\nrollback → reversión (volver la base de datos a un estado estable anterior)\npre-authorization → preautorización (retención temporal en el pago)\ntimeout → tiempo de espera agotado\norphaned data → datos huérfanos (sin conexión válida al registro original)\nreferential integrity → integridad referencial (relaciones consistentes entre tablas)\nretry → reintentar\ntrigger an alert → disparar una alerta'},
+    ]},
+    vocab:[
+      {en:'status code',es:'código de estado',ex:'A 409 status code indicates a conflict error.'},
+      {en:'root cause',es:'causa raíz',ex:'The root cause of the error was a race condition.'},
+      {en:'rollback',es:'reversión / rollback',ex:'The database initiated a rollback to the last stable state.'},
+      {en:'pre-authorization',es:'preautorización',ex:'The system voids the payment pre-authorization automatically.'},
+      {en:'timeout',es:'tiempo de espera agotado',ex:'The server failed to respond within 5000ms — timeout.'},
+      {en:'orphaned data',es:'datos huérfanos',ex:'Orphaned data was found after the connection dropped.'},
+      {en:'referential integrity',es:'integridad referencial',ex:'The rollback maintains referential integrity in the database.'},
+      {en:'retry',es:'reintentar',ex:'The system retries the connection up to 3 times.'},
+      {en:'trigger an alert',es:'disparar/enviar una alerta',ex:'If the issue persists, trigger a critical Slack alert.'},
+      {en:'race condition',es:'condición de carrera',ex:'Two concurrent requests caused a race condition.'},
+    ],
+    quiz:[
+      {q:'A "rollback" in database terms means:',hint:'¿Qué hace el sistema cuando algo falla a mitad de una escritura?',opts:['Reintentar la operación','Volver la base de datos a un estado estable anterior','Enviar una alerta al equipo','Cancelar el pago del usuario'],correct:1,why:'Rollback = reversión. El sistema vuelve al último estado estable para mantener la integridad referencial.'},
+      {q:'A "409 Conflict" status code occurs when:',hint:'Pensá en dos usuarios comprando el último item al mismo tiempo.',opts:['El servidor no responde en 5000ms','Una solicitud no puede completarse por contradicción con el estado actual del recurso','La conexión a la base de datos se cae','El pago es rechazado por el banco'],correct:1,why:'409 = Conflict. Ocurre cuando hay una contradicción entre la solicitud y el estado actual del recurso (ej: dos usuarios comprando el último item simultáneamente).'},
+      {q:'"Orphaned data" refers to:',hint:'¿Qué pasa con los datos cuando se cae la conexión a mitad de una escritura?',opts:['Datos encriptados','Datos sin conexión válida a su registro original','Datos duplicados en la base de datos','Datos de usuarios inactivos'],correct:1,why:'Orphaned data = datos huérfanos. Quedan en el sistema sin conexión válida a su transacción o registro original.'},
+      {q:'When should a "retry" mechanism be applied?',hint:'Pensá en el caso del Vendor Sync Timeout.',opts:['Cuando el usuario olvida su contraseña','Cuando el servidor no responde dentro del tiempo límite','Cuando hay un error 409','Cuando la base de datos hace un rollback'],correct:1,why:'Retry = reintentar. Se aplica cuando el servidor no responde (timeout). En la actividad: hasta 3 intentos antes de disparar una alerta crítica.'},
+    ],
+    produce:[
+      {prompt:'Explicá en inglés qué es un "rollback" y cuándo se usa.\n(2-3 oraciones simples)',hint:'Usá vocabulario de la actividad: database, stable state, referential integrity.',answer:'A rollback is the action of returning a database to a previous, stable state after an error occurs. It is used when a database connection drops during a write operation. A rollback maintains referential integrity and prevents orphaned data.',why:'Rollback protege la integridad de la base de datos cuando algo falla a mitad de una operación.'},
+      {prompt:'Describí el problema y la solución estándar para un "409 Conflict" error.\nUsá el formato del Troubleshooting: problema → causa raíz → acción requerida.',hint:'La entrevista del AuraTech tiene el ejemplo exacto.',answer:'Problem: Two users attempted to buy the last item concurrently.\nRoot cause: A race condition occurred when both requests were processed simultaneously.\nStandard action: The system rejects the second transaction, updates the UI to "Out of Stock," and voids the payment pre-authorization.',why:'Este es el caso exacto de la actividad AuraTech. El formato problema → causa → solución es el estándar de troubleshooting.'},
+    ]
+  },
+];
+
+// ════════════════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════════════════
+const S = {
+  view:'home', topicId:null, section:null,
+  mode:'theory', qIdx:0, answered:false,
+  score:0, total:0, showAnswer:false, chosenIdx:null,
+  srsStep:0, srsShown:false,
+  progress: JSON.parse(localStorage.getItem('ing2v2_prog')||'{}')
+};
+
+function saveProgress(id, mode){
+  if(!S.progress[id]) S.progress[id]={};
+  S.progress[id][mode]=true;
+  // persist current step for SRS topics
+  if(S.view==='srs') S.progress[id]['_step']=S.srsStep;
+  localStorage.setItem('ing2v2_prog', JSON.stringify(S.progress));
+}
+function getProgress(id){
+  const p=S.progress[id]||{};
+  return Object.keys(p).filter(k=>p[k]&&k!=='_step').length;
+}
+function getSavedStep(id){
+  return (S.progress[id]||{})['_step']||0;
+}
+
+// ── Estado de quiz/produce por topic (ing2v2_state_{topicId}_{mode}) ──
+function qStateKey(id,mode){ return `ing2v2_state_${id}_${mode}`; }
+function isQMode(){ return (S.view==='grammar'||S.view==='trouble') && (S.mode==='quiz'||S.mode==='produce'); }
+function saveQState(){
+  if(!isQMode()) return;
+  // una pregunta ya respondida (y puntuada) cuenta como avanzada
+  const qIdx = S.answered ? S.qIdx+1 : S.qIdx;
+  try{ localStorage.setItem(qStateKey(S.topicId,S.mode), JSON.stringify({qIdx, score:S.score, total:S.total})); }catch(e){}
+}
+function loadQState(){
+  let st=null;
+  try{ st=JSON.parse(localStorage.getItem(qStateKey(S.topicId,S.mode))); }catch(e){}
+  S.qIdx=st?st.qIdx||0:0; S.score=st?st.score||0:0; S.total=st?st.total||0:0;
+  S.answered=false; S.showAnswer=false; S.chosenIdx=null;
+}
+function clearQState(){
+  try{ localStorage.removeItem(qStateKey(S.topicId,S.mode)); }catch(e){}
+  S.qIdx=0; S.answered=false; S.score=0; S.total=0; S.showAnswer=false; S.chosenIdx=null;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════════════════════════════════
+function el(tag,cls){const e=document.createElement(tag);if(cls)e.className=cls;return e}
+// "📖 Teoría" → <span.tab-ico>📖</span> <span.tab-txt>Teoría</span> (para layout mobile)
+function setTabLabel(btn,lbl){
+  const i=lbl.indexOf(' ');
+  btn.innerHTML=`<span class="tab-ico">${lbl.slice(0,i)}</span> <span class="tab-txt">${lbl.slice(i+1)}</span>`;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// RENDER
+// ════════════════════════════════════════════════════════════════════
+function render(){
+  const main=document.getElementById('main');
+  const bc=document.getElementById('bc');
+  main.innerHTML='';
+  saveQState();
+  if(S.view==='home'){ bc.textContent=''; main.appendChild(renderHome()); }
+  else if(S.view==='grammar'){ bc.textContent=findTopic().name; main.appendChild(renderGrammarTopic(findTopic())); }
+  else if(S.view==='srs'){ bc.textContent=findTopic().name; main.appendChild(renderSRS(findTopic())); }
+  else if(S.view==='trouble'){ bc.textContent=findTopic().name; main.appendChild(renderGrammarTopic(findTopic())); }
+}
+
+function findTopic(){
+  return [...GRAMMAR_TOPICS,...SRS_TOPICS,...TROUBLESHOOTING_TOPICS].find(t=>t.id===S.topicId);
+}
+
+function openTopic(t, view){
+  S.view=view; S.topicId=t.id;
+  S.mode = (view==='srs') ? 'srs-theory' : 'theory';
+  S.qIdx=0; S.answered=false; S.score=0; S.total=0;
+  S.showAnswer=false; S.chosenIdx=null;
+  // restore saved step for SRS
+  S.srsStep = (view==='srs') ? getSavedStep(t.id) : 0;
+  S.srsShown=false;
+  render();
+}
+
+// ── HOME ────────────────────────────────────────────────────────────
+function renderHome(){
+  const div=el('div');
+  div.innerHTML='<div class="home-title">Inglés Técnico II</div><div class="home-sub">Seleccioná un tema. Gramática → Situaciones problemáticas → Troubleshooting.</div><div class="banner">🚧 <div><strong>Parcial 2 — En construcción.</strong> Se irán agregando situaciones problemáticas y teoría a medida que avance el cuatrimestre.</div></div>';
+
+  // Gramática
+  const lbl1=el('div','sec-label'); lbl1.textContent='📚 Sección 1 — Gramática (Parcial 1 + Recuperatorio)';
+  div.appendChild(lbl1);
+  const g=el('div','topic-grid'); div.appendChild(g);
+  GRAMMAR_TOPICS.forEach(t=>{
+    const prog=getProgress(t.id);
+    const max=3;
+    const card=el('div','topic-card');
+    card.innerHTML=`<div class="topic-tag tag-${t.tag}">${t.tagLabel}</div><div class="topic-name">${t.name}</div><div class="topic-desc">${t.desc}</div><div class="prog-bg"><div class="prog-fill fill-accent" style="width:${(prog/max)*100}%"></div></div><div class="prog-lbl">${prog}/${max} modos</div>`;
+    card.onclick=()=>openTopic(t,'grammar');
+    g.appendChild(card);
+  });
+
+  // SRS
+  const lbl2=el('div','sec-label'); lbl2.textContent='🎯 Sección 2 — Situaciones Problemáticas (Parcial 2 + Final)';
+  div.appendChild(lbl2);
+  const s=el('div','topic-grid'); div.appendChild(s);
+  SRS_TOPICS.forEach(t=>{
+    const prog=getProgress(t.id);
+    const card=el('div','topic-card');
+    card.innerHTML=`<div class="topic-tag tag-srs">${t.tagLabel}</div><div class="topic-name">${t.name}</div><div class="topic-desc">${t.desc}</div><div class="prog-bg"><div class="prog-fill fill-green" style="width:${(prog/5)*100}%"></div></div><div class="prog-lbl">${prog}/5 pasos</div>`;
+    card.onclick=()=>openTopic(t,'srs');
+    s.appendChild(card);
+  });
+
+  // Troubleshooting
+  const lbl3=el('div','sec-label'); lbl3.textContent='🔧 Sección 3 — Troubleshooting (Nuevo tema)';
+  div.appendChild(lbl3);
+  const tr=el('div','topic-grid'); div.appendChild(tr);
+  TROUBLESHOOTING_TOPICS.forEach(t=>{
+    const prog=getProgress(t.id);
+    const card=el('div','topic-card');
+    card.innerHTML=`<div class="topic-tag tag-srs">${t.tagLabel}</div><div class="topic-name">${t.name}</div><div class="topic-desc">${t.desc}</div><div class="prog-bg"><div class="prog-fill fill-green" style="width:${(prog/3)*100}%"></div></div><div class="prog-lbl">${prog}/3 modos</div>`;
+    card.onclick=()=>openTopic(t,'trouble');
+    tr.appendChild(card);
+  });
+
+  return div;
+}
+
+// ── GRAMMAR TOPIC ────────────────────────────────────────────────────
+function renderGrammarTopic(t){
+  const div=el('div');
+  const back=el('button','back-btn'); back.textContent='← Volver'; back.onclick=()=>{S.view='home';render();}; div.appendChild(back);
+  const tabs=el('div','mode-tabs');
+  [['theory','📖 Teoría'],['quiz','🎯 Reconocer'],['produce','✍️ Producir']].forEach(([id,lbl])=>{
+    const btn=el('button','mode-tab'); setTabLabel(btn,lbl);
+    if(S.mode===id) btn.classList.add('active');
+    btn.onclick=()=>{S.mode=id;loadQState();render();};
+    tabs.appendChild(btn);
+  });
+  div.appendChild(tabs);
+  if(S.mode==='theory') div.appendChild(renderTheory(t));
+  else if(S.mode==='quiz') div.appendChild(renderQuiz(t));
+  else div.appendChild(renderProduce(t));
+  return div;
+}
+
+// ── THEORY ──────────────────────────────────────────────────────────
+function renderTheory(t){
+  const div=el('div');
+  t.theory.sections.forEach(sec=>{
+    const block=el('div','theory-block');
+    block.innerHTML=`<h2>${sec.title}</h2>`;
+    if(sec.formula){const f=el('div','formula');f.textContent=sec.formula;block.appendChild(f);}
+    if(sec.content){const p=el('p');p.innerHTML=sec.content;block.appendChild(p);}
+    if(sec.warn){const w=el('div','warn');w.textContent=sec.warn;block.appendChild(w);}
+    if(sec.examples){sec.examples.forEach(ex=>{const e=el('div','ex-box');e.innerHTML=`<div class="ex-lbl">${ex.lbl}</div><div class="${ex.lbl.includes('❌')?'ex-bad':'ex-ok'}">${ex.text}</div>`;block.appendChild(e);});}
+    if(sec.table){
+      const tbl=document.createElement('table');tbl.className='kw-table';
+      const hdr=document.createElement('tr');sec.headers.forEach(h=>{const th=document.createElement('th');th.textContent=h;hdr.appendChild(th);});tbl.appendChild(hdr);
+      sec.table.forEach(row=>{const tr=document.createElement('tr');[row.col1,row.col2,row.col3].forEach((v,i)=>{const td=document.createElement('td');if(i===1)td.classList.add('kw');td.textContent=v;tr.appendChild(td);});tbl.appendChild(tr);});
+      const wrap=el('div','table-wrap');wrap.appendChild(tbl);block.appendChild(wrap);
+    }
+    div.appendChild(block);
+  });
+  if(t.vocab){
+    const block=el('div','theory-block');
+    block.innerHTML='<h2>Vocabulario — tocá para ver la traducción</h2>';
+    const grid=el('div','vocab-grid');
+    t.vocab.forEach(v=>{
+      const card=el('div','vc');
+      card.innerHTML=`<div class="vc-en">${v.en}</div><div class="vc-es">${v.es}</div><div class="vc-ex">${v.ex}</div><div class="vc-tap">Tocar para revelar</div>`;
+      card.onclick=()=>card.classList.toggle('flipped');
+      grid.appendChild(card);
+    });
+    block.appendChild(grid);div.appendChild(block);
+  }
+  const btn=el('button','theory-done');btn.textContent='Entendido — ir a Reconocer →';
+  btn.onclick=()=>{saveProgress(t.id,'theory');S.mode='quiz';loadQState();render();};
+  div.appendChild(btn);
+  return div;
+}
+
+// ── QUIZ ────────────────────────────────────────────────────────────
+function renderQuiz(t){
+  if(S.qIdx>=t.quiz.length) return renderResults(t,'quiz');
+  const q=t.quiz[S.qIdx];
+  const div=el('div');
+  const hdr=el('div','quiz-hdr');
+  hdr.innerHTML=`<span class="quiz-ctr">Pregunta ${S.qIdx+1}/${t.quiz.length}</span><span class="quiz-pill">✓ ${S.score}</span>`;
+  div.appendChild(hdr);
+  const box=el('div','quiz-q');
+  const qt=el('div','quiz-qtext');qt.textContent=q.q;box.appendChild(qt);
+  if(q.hint){const h=el('div','quiz-hint');h.textContent='💡 '+q.hint;box.appendChild(h);}
+  const opts=el('div','quiz-opts');
+  q.opts.forEach((opt,i)=>{
+    const btn=el('button','quiz-opt');btn.textContent=opt;
+    if(S.answered){
+      btn.disabled=true;
+      if(i===q.correct) btn.classList.add('correct');
+      else if(i===S.chosenIdx) btn.classList.add('wrong');
+    }
+    btn.onclick=()=>{
+      if(S.answered)return;
+      S.answered=true;S.chosenIdx=i;S.total++;
+      if(i===q.correct)S.score++;
+      render();
+    };
+    opts.appendChild(btn);
+  });
+  box.appendChild(opts);
+  if(S.answered){
+    const fb=el('div','quiz-fb');
+    fb.classList.add(S.chosenIdx===q.correct?'ok':'ko');
+    fb.textContent=(S.chosenIdx===q.correct?'✓ Correcto. ':'✗ Incorrecto. ')+q.why;
+    box.appendChild(fb);
+    const nxt=el('button','quiz-next');
+    nxt.textContent=S.qIdx+1<t.quiz.length?'Siguiente →':'Ver resultados';
+    nxt.onclick=()=>{S.qIdx++;S.answered=false;S.chosenIdx=null;render();};
+    box.appendChild(nxt);
+  }
+  div.appendChild(box);return div;
+}
+
+// ── PRODUCE ─────────────────────────────────────────────────────────
+function renderProduce(t){
+  if(S.qIdx>=t.produce.length) return renderResults(t,'produce');
+  const q=t.produce[S.qIdx];
+  const div=el('div');
+  const hdr=el('div','quiz-hdr');
+  hdr.innerHTML=`<span class="quiz-ctr">Ejercicio ${S.qIdx+1}/${t.produce.length}</span><span class="quiz-pill">✓ ${S.score}/${S.total}</span>`;
+  div.appendChild(hdr);
+  const box=el('div','produce-q');
+  const pr=el('div','produce-prompt');pr.textContent=q.prompt;box.appendChild(pr);
+  if(q.hint){const h=el('div','produce-hint');h.textContent='💡 '+q.hint;box.appendChild(h);}
+  if(!S.showAnswer){
+    const inp=el('textarea','produce-inp');inp.placeholder='Escribí tu respuesta acá...';box.appendChild(inp);
+    const acts=el('div','produce-acts');
+    const rev=el('button','btn-reveal');rev.textContent='Ver respuesta';
+    rev.onclick=()=>{S.showAnswer=true;render();};acts.appendChild(rev);box.appendChild(acts);
+  } else {
+    const ans=el('div','prod-ans');
+    ans.innerHTML=`<div class="prod-ans-lbl">Respuesta correcta</div><div class="prod-ans-text">${q.answer.replace(/\n/g,'<br>')}</div><div class="prod-ans-why">${q.why}</div>`;
+    box.appendChild(ans);
+    const self=el('div','prod-self');
+    const ok=el('button','btn-ok');ok.textContent='✓ Lo tenía';
+    ok.onclick=()=>{S.score++;S.total++;S.qIdx++;S.showAnswer=false;render();};
+    const ko=el('button','btn-ko');ko.textContent='✗ Me equivoqué';
+    ko.onclick=()=>{S.total++;S.qIdx++;S.showAnswer=false;render();};
+    self.appendChild(ok);self.appendChild(ko);box.appendChild(self);
+  }
+  div.appendChild(box);return div;
+}
+
+// ── SRS THEORY CONTENT ──────────────────────────────────────────────
+const SRS_THEORY = {
+  sections:[
+    {title:'¿Qué es un requerimiento?',
+     content:`Un requerimiento describe <strong>qué debe hacer el sistema</strong> o <strong>cómo debe comportarse</strong>. Vienen de la entrevista con el cliente y se escriben en formato formal.`},
+    {title:'FR — Functional Requirement',
+     formula:'The system shall [acción concreta].',
+     content:`Describe <strong>qué hace</strong> el sistema. Acciones, funciones, features.<br><strong>Preguntate:</strong> ¿Esto es algo que un usuario puede hacer en el sistema?`,
+     examples:['FR-01: The system shall allow users to register and log in.','FR-02: The system shall allow passengers to request a ride.']},
+    {title:'NFR — Non-Functional Requirement',
+     formula:'The system shall [calidad medible].',
+     content:`Describe <strong>qué tan bien</strong> funciona el sistema. Velocidad, seguridad, disponibilidad, escalabilidad.<br><strong>Preguntate:</strong> ¿Esto describe una cualidad del sistema, no una acción?`,
+     examples:['NFR-01: The system shall respond in less than 3 seconds. (Performance)','NFR-02: The system shall be available 7 days a week. (Availability)']},
+    {title:'MoSCoW — Priorización',
+     content:`Reescribís los requerimientos cambiando <strong>shall</strong> por el modal según prioridad:`,
+     warn:'MUST  → esencial, sin esto no funciona\nSHOULD → importante pero no crítico\nCOULD  → deseable, para versiones futuras\nWON\'T  → descartado por ahora\n\n⚠️ NUNCA "will" en la cláusula IF de los conditionals.'},
+    {title:'Actores y Casos de Uso',
+     content:`<strong>Actor</strong> = quien usa el sistema (Passenger, Driver, Administrator).<br><strong>Caso de uso</strong> = acción que realiza un actor.`,
+     examples:['Formato: Verbo + Complemento (sin conjugar)','✅ "Request a ride" / "Approve driver registration"','❌ "Requests a ride" / "The driver accepts"']},
+    {title:'Reglas de Negocio en Voz Pasiva',
+     formula:'[Objeto] must/shall be [participio pasado] by [agente].',
+     examples:['Activa: Drivers must have valid documents.','Pasiva: Valid documents must be presented by drivers before rides are accepted.']},
+  ]
+};
+
+// ── SRS MODE ────────────────────────────────────────────────────────
+function renderSRS(t){
+  const div=el('div');
+  const back=el('button','back-btn');back.textContent='← Volver';back.onclick=()=>{S.view='home';render();};div.appendChild(back);
+
+  // Tabs: Teoría | Resolver
+  const tabs=el('div','mode-tabs');
+  [['srs-theory','📖 Teoría SRS'],['srs-practice','🎯 Resolver']].forEach(([id,lbl])=>{
+    const btn=el('button','mode-tab');setTabLabel(btn,lbl);
+    if(S.mode===id) btn.classList.add('active');
+    btn.onclick=()=>{
+      // save current step before switching
+      if(S.view==='srs') saveProgress(t.id,'tab-switch');
+      S.mode=id;S.srsShown=false;render();
+    };
+    tabs.appendChild(btn);
+  });
+  div.appendChild(tabs);
+
+  // Theory tab
+  if(S.mode==='srs-theory'){
+    SRS_THEORY.sections.forEach(sec=>{
+      const block=el('div','srs-theory');
+      block.innerHTML=`<h2>${sec.title}</h2>`;
+      if(sec.formula){const f=el('div','formula');f.textContent=sec.formula;block.appendChild(f);}
+      if(sec.content){const p=el('p');p.innerHTML=sec.content;block.appendChild(p);}
+      if(sec.warn){const w=el('div','warn');w.textContent=sec.warn;block.appendChild(w);}
+      if(sec.examples){sec.examples.forEach(ex=>{const e=el('div','ex-box');e.innerHTML=`<div class="ex-ok">${ex}</div>`;block.appendChild(e);});}
+      div.appendChild(block);
+    });
+    const doneBtn=el('button','srs-theory-done');doneBtn.textContent='Entendido — ir a Resolver →';
+    doneBtn.onclick=()=>{saveProgress(t.id,'theory');S.mode='srs-practice';render();};
+    div.appendChild(doneBtn);
+    return div;
+  }
+
+  // Interview
+  const intv=el('div','srs-interview');
+  intv.innerHTML=`<strong style="color:var(--yellow);font-size:11px;letter-spacing:.08em;text-transform:uppercase">📋 Entrevista con el cliente — leé antes de resolver</strong><br><br>${t.interview}`;
+  div.appendChild(intv);
+
+  if(S.srsStep>=t.steps.length){
+    saveProgress(t.id,'completed');
+    const res=el('div','results');
+    res.innerHTML=`<div class="results-score">✓</div><div class="results-lbl">Situación completada</div><div class="results-msg">Completaste todos los pasos de esta situación problemática.</div>`;
+    const retry=el('button','results-btn');retry.textContent='↩ Reintentar';retry.onclick=()=>{S.srsStep=0;S.srsShown=false;render();};
+    const home=el('button','results-btn sec');home.textContent='⌂ Menú';home.onclick=()=>{S.view='home';render();};
+    res.appendChild(retry);res.appendChild(home);div.appendChild(res);return div;
+  }
+
+  const step=t.steps[S.srsStep];
+
+  // Progress pills
+  const pills=el('div');pills.style.cssText='display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap';
+  t.steps.forEach((st,i)=>{
+    const pill=el('span');
+    pill.style.cssText=`font-size:10px;padding:3px 10px;border-radius:99px;border:1px solid ${i===S.srsStep?'var(--green)':i<S.srsStep?'var(--text3)':'var(--border)'};color:${i===S.srsStep?'var(--green)':i<S.srsStep?'var(--text3)':'var(--text3)'}`;
+    pill.textContent=`${i<S.srsStep?'✓ ':''}${st.title.split('—')[1]?.trim()||st.title}`;
+    pills.appendChild(pill);
+  });
+  div.appendChild(pills);
+
+  const stepBox=el('div','srs-step');
+  const title=el('div','srs-step-title');title.textContent=step.title;stepBox.appendChild(title);
+  const desc=el('div','srs-step-desc');desc.textContent=step.desc;stepBox.appendChild(desc);
+
+  if(!S.srsShown){
+    const inp=el('textarea','srs-inp');inp.placeholder='Escribí tu respuesta acá...';stepBox.appendChild(inp);
+    const checkBtn=el('button','srs-check-btn');checkBtn.textContent='Ver modelo →';
+    checkBtn.onclick=()=>{S.srsShown=true;render();};stepBox.appendChild(checkBtn);
+  } else {
+    const fb=el('div','srs-fb');
+    fb.innerHTML=`<h4>Respuesta modelo</h4>${step.model.split('\n').map(l=>`<div class="model">${l.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`).join('')}<div class="tip" style="margin-top:8px">💡 ${step.tip}</div>`;
+    stepBox.appendChild(fb);
+    const nav=el('div','srs-nav');
+    const nxt=el('button','srs-nav-btn');
+    nxt.textContent=S.srsStep+1<t.steps.length?'Siguiente paso →':'Completar situación ✓';
+    nxt.onclick=()=>{saveProgress(t.id,'step-'+S.srsStep);S.srsStep++;S.srsShown=false;render();};
+    nav.appendChild(nxt);stepBox.appendChild(nav);
+  }
+
+  div.appendChild(stepBox);return div;
+}
+
+// ── RESULTS ─────────────────────────────────────────────────────────
+function renderResults(t,mode){
+  saveProgress(t.id,mode);
+  const pct=S.total>0?Math.round((S.score/S.total)*100):100;
+  const msg=pct>=80?'¡Muy bien! Avanzá al siguiente modo.':pct>=50?'Bien, repasá los que fallaste.':'Repasá la teoría y volvé a intentarlo.';
+  const div=el('div','results');
+  div.innerHTML=`<div class="results-score">${pct}%</div><div class="results-lbl">${S.score} de ${S.total} correctas</div><div class="results-msg">${msg}</div>`;
+  const retry=el('button','results-btn');retry.textContent='↩ Reintentar';
+  retry.onclick=()=>{clearQState();render();};
+  const home=el('button','results-btn sec');home.textContent='⌂ Menú';home.onclick=()=>{S.view='home';render();};
+  div.appendChild(retry);div.appendChild(home);return div;
+}
+
+render();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js');
+}
+</script>
+</body>
+</html>
