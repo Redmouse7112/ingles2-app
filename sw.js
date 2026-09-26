@@ -1,8 +1,9 @@
 // Service worker — Inglés Técnico II
 // Estrategia cache-first. Para publicar una versión nueva del HTML, cambiá CACHE (ej: 'ingles2-v2').
-const CACHE = 'ingles2-v1';
+const CACHE = 'ingles2-v2';
 const PRECACHE = [
-  './ingles2_v2.html',
+  './',
+  './index.html',
   './manifest.json',
   './sw.js',
   './icon-192.png',
@@ -32,8 +33,10 @@ self.addEventListener('fetch', e => {
           const copy = res.clone();
           caches.open(CACHE).then(c => c.put(req, copy));
         }
+        // instalaciones viejas abren ./ingles2_v2.html (ya no existe) → servir index.html
+        if (!res.ok && req.mode === 'navigate') return caches.match('./index.html').then(r => r || res);
         return res;
-      }).catch(() => req.mode === 'navigate' ? caches.match('./ingles2_v2.html') : Response.error());
+      }).catch(() => req.mode === 'navigate' ? caches.match('./index.html') : Response.error());
     })
   );
 });

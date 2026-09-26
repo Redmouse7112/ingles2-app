@@ -2,7 +2,7 @@
   "name": "Inglés Técnico II",
   "short_name": "Inglés II",
   "description": "App de estudio para Inglés Técnico II — Tecnicatura en Desarrollo de Software",
-  "start_url": "./ingles2_v2.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0f1117",
   "theme_color": "#4f8ef7",
