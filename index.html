@@ -168,6 +168,28 @@ main{flex:1;padding:28px 20px;max-width:900px;margin:0 auto;width:100%}
 .results-btn{background:var(--accent);color:#fff;border:none;padding:10px 24px;border-radius:var(--rs);cursor:pointer;font-size:14px;font-weight:700;margin:0 4px}
 .results-btn.sec{background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
 
+/* BLOQUEO "VER RESPUESTA" + CORRECCIÓN AUTOMÁTICA */
+.btn-reveal:disabled,.srs-check-btn:disabled{opacity:.4;cursor:not-allowed}
+.ans-lock{font-size:11px;color:var(--text3);margin-top:6px;font-style:italic}
+.your-ans{margin-top:10px;background:var(--surface2);border-radius:var(--rs);padding:10px 14px;font-size:12px;color:var(--text2);white-space:pre-wrap;line-height:1.5;max-height:160px;overflow-y:auto}
+.corr{margin-top:10px;border:1px solid var(--border);border-radius:var(--rs);padding:12px 14px;background:var(--surface)}
+.corr-hd{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text2)}
+.corr-score{font-family:var(--mono);letter-spacing:0;text-transform:none;color:var(--accent)}
+.corr-sec{margin-top:12px}
+.corr-t{font-size:11px;font-weight:700;margin-bottom:6px;letter-spacing:.04em}
+.corr-ok .corr-t{color:var(--green)}
+.corr-ko .corr-t{color:var(--red)}
+.corr-miss .corr-t{color:var(--yellow)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:11px;padding:3px 10px;border-radius:99px;border:1px solid;font-family:var(--mono)}
+.chip-ok{color:var(--green);border-color:var(--green);background:#052e16}
+.chip-miss{color:var(--yellow);border-color:var(--yellow);background:#2d1f00}
+.corr-item{font-size:12px;line-height:1.5;padding:6px 10px;border-radius:var(--rs);margin-top:4px}
+.corr-ok .corr-item{background:#052e16;color:#86efac}
+.corr-ko .corr-item{background:#2d0a0a;color:#fca5a5}
+.corr-none{font-size:11px;color:var(--text3);font-style:italic}
+.corr-note{font-size:10px;color:var(--text3);margin-top:12px;font-style:italic}
+
 /* PASOS SRS con saltos de línea + líneas vacías en modelos */
 .srs-step-desc{white-space:pre-line}
 .srs-fb .model:empty{height:.8em}
@@ -735,6 +757,72 @@ const TROUBLESHOOTING_TOPICS = [
   },
 ];
 
+// ── KEYWORDS OBLIGATORIAS (corrección automática) ────────────────────
+// produce: una lista por ejercicio (mismo orden). SRS: por id de paso.
+// Sintaxis: "a|b" = alternativas · "allow...to" = "allow" y después "to" (misma frase).
+// Un ejercicio/paso nuevo también puede traer su propio `keywords:[...]` inline.
+const KEYWORDS = {
+  'passive':{produce:[
+    ['was fixed','by'],
+    ['has been improved','by'],
+    ['was being tested'],
+  ]},
+  'conditionals':{produce:[
+    ['is',"does not work|doesn't work"],
+    ['if','will appear'],
+  ]},
+  'vocabulary':{produce:[
+    ['application software','programming software','users','developers','tasks'],
+  ]},
+  'was-were':{produce:[
+    ['was deployed','was patched','was refactored','was launched','by'],
+  ]},
+  'troubleshooting-vocab':{produce:[
+    ['rollback','database','stable state','referential integrity'],
+    ['race condition','root cause','concurrently|simultaneously|conflict','pre-authorization','out of stock'],
+  ]},
+  'srs-transport':{
+    'fr':['shall','allow...to'],
+    'nfr':['shall','seconds','available|availability','users'],
+    'moscow':['must','should','could',"won't|will not"],
+    'actors':['passenger','driver','administrator'],
+    'passive':['must be|shall be|can be','by'],
+  },
+  'srs-library':{
+    'fr':['shall','allow...to'],
+    'nfr':['shall','seconds','available|availability','simultaneous|users'],
+    'moscow':['must','should','could',"won't|will not"],
+    'actors':['member','librarian','administrator'],
+    'passive':['must be|shall be|can be','by'],
+  },
+  'srs-nimbuscloud':{
+    'actions':['shall be','throttled|throttle','rolled back|rollback','retry','notified|notify','dead-letter queue'],
+    'translation':['solicitudes','causa','accion','cache','reintentar|reintentara'],
+    'matching':['1...c','2...b','3...a','4...e','5...d'],
+    'report':['alerta critica','rango','direcciones ip|ip','limite de solicitudes','credenciales','contrasenas'],
+    'passive-incidents':['was...retried','was...resolved','was...retrained','by'],
+  },
+  'srs-profile':{
+    'vocab':['restful api','version control','containerization|container','ci/cd','microservices','unit testing|unit test','technical debt','scalability'],
+    'active-passive':['was deployed','identified','were optimized','integrated','was migrated','by'],
+    'profile-writing':['junior','developer','experience','version control|git','api','was|were'],
+    'checklist':['vocabulary','active','passive','grammar','words|word count'],
+  },
+  'srs-shopsmart':{
+    'challenge':['authentication|authenticated','authorization','ownership|owner','order id|order ids','unauthorized access','sequential|sequentially'],
+    'executive-summary':['september','shopsmart','api','production','customer','data'],
+    'root-cause':['root cause','authorization|ownership','sequential','symptom','trigger','contributing factor'],
+    'actions':['has been|have been','will','authorization','uuid|uuids','monitoring|alert|alerts','test|tests|testing'],
+    'conclusion':['has been|have been','will','restored|resolved|patched','review'],
+  },
+};
+[...GRAMMAR_TOPICS,...TROUBLESHOOTING_TOPICS].forEach(t=>(t.produce||[]).forEach((p,i)=>{
+  const k=KEYWORDS[t.id]&&KEYWORDS[t.id].produce&&KEYWORDS[t.id].produce[i]; if(k&&!p.keywords) p.keywords=k;
+}));
+SRS_TOPICS.forEach(t=>t.steps.forEach(s=>{
+  const k=KEYWORDS[t.id]&&KEYWORDS[t.id][s.id]; if(k&&!s.keywords) s.keywords=k;
+}));
+
 // ════════════════════════════════════════════════════════════════════
 // STATE
 // ════════════════════════════════════════════════════════════════════
@@ -742,7 +830,8 @@ const S = {
   view:'home', topicId:null, section:null,
   mode:'theory', qIdx:0, answered:false,
   score:0, total:0, showAnswer:false, chosenIdx:null,
-  srsStep:0, srsShown:false,
+  draft:'', userAnswer:'',                              // produce: borrador y respuesta enviada
+  srsStep:0, srsShown:false, srsDraft:'', srsAnswer:'', // SRS: idem por paso
   progress: JSON.parse(localStorage.getItem('ing2v2_prog')||'{}')
 };
 
@@ -768,17 +857,161 @@ function saveQState(){
   if(!isQMode()) return;
   // una pregunta ya respondida (y puntuada) cuenta como avanzada
   const qIdx = S.answered ? S.qIdx+1 : S.qIdx;
-  try{ localStorage.setItem(qStateKey(S.topicId,S.mode), JSON.stringify({qIdx, score:S.score, total:S.total})); }catch(e){}
+  const st={qIdx, score:S.score, total:S.total};
+  if(S.mode==='produce'){ st.shown=S.showAnswer; st.answer=S.userAnswer; st.draft=S.draft; }
+  try{ localStorage.setItem(qStateKey(S.topicId,S.mode), JSON.stringify(st)); }catch(e){}
 }
 function loadQState(){
   let st=null;
   try{ st=JSON.parse(localStorage.getItem(qStateKey(S.topicId,S.mode))); }catch(e){}
   S.qIdx=st?st.qIdx||0:0; S.score=st?st.score||0:0; S.total=st?st.total||0:0;
-  S.answered=false; S.showAnswer=false; S.chosenIdx=null;
+  S.answered=false; S.chosenIdx=null;
+  S.showAnswer=!!(st&&st.shown); S.userAnswer=(st&&st.answer)||''; S.draft=(st&&st.draft)||'';
 }
 function clearQState(){
   try{ localStorage.removeItem(qStateKey(S.topicId,S.mode)); }catch(e){}
   S.qIdx=0; S.answered=false; S.score=0; S.total=0; S.showAnswer=false; S.chosenIdx=null;
+  S.draft=''; S.userAnswer='';
+}
+
+// ── Estado SRS por topic (ing2v2_srs_{topicId}) ──
+function srsKey(id){ return `ing2v2_srs_${id}`; }
+function saveSRSState(){
+  if(S.view!=='srs') return;
+  try{ localStorage.setItem(srsKey(S.topicId), JSON.stringify({step:S.srsStep, shown:S.srsShown, answer:S.srsAnswer, draft:S.srsDraft})); }catch(e){}
+}
+function loadSRSState(id){
+  let st=null;
+  try{ st=JSON.parse(localStorage.getItem(srsKey(id))); }catch(e){}
+  // sin key nueva → compatibilidad con el '_step' viejo de ing2v2_prog
+  S.srsStep = st ? st.step||0 : getSavedStep(id);
+  S.srsShown = !!(st&&st.shown);
+  S.srsAnswer = (st&&st.answer)||'';
+  S.srsDraft = (st&&st.draft)||'';
+}
+
+// ════════════════════════════════════════════════════════════════════
+// CORRECCIÓN LOCAL (reglas del curso, sin librerías)
+// ════════════════════════════════════════════════════════════════════
+const MIN_CHARS = 10;
+const ACTOR_NOUNS = 'users?|passengers?|drivers?|members?|librarians?|admins?|administrators?|customers?|clients?|students?|employees?|engineers?|developers?|people|staff';
+const BASE_VERBS = ['allow','provide','send','record','calculate','support','display','show','notify','process','generate','manage','store','validate','respond','register','track','search','reserve','renew','accept','reject','request','view','update','delete','create','verify','check','detect','retry','block','return','save','pay','rate','receive','approve','monitor','handle','implement','replace','integrate','conduct','ensure','protect','encrypt','restrict','limit','throttle','move','suspend','log','book','cancel','confirm','use','work','run','need','include'];
+const CONJ = {};  // "allows" → "allow", "notifies" → "notify", "processes" → "process"
+BASE_VERBS.forEach(v=>{ CONJ[v+'s']=v; CONJ[v+'es']=v; if(/[^aeiou]y$/.test(v)) CONJ[v.slice(0,-1)+'ies']=v; });
+// adverbio opcional entre el auxiliar y el participio ("was automatically retried", "is often used")
+const ADV = String.raw`(?:\w+ly|often|also|always|never|already|just|still|not)`;
+// participio pasado: regulares (-ed/-en) + irregulares frecuentes
+const PP = String.raw`(?!often\b|open\b|even\b|then\b|when\b|seven\b|eleven\b|token\b)\w+(?:ed|en)|built|made|sent|found|done|kept|held|set|put|run|lost|shut|paid|sold|told|brought|bought|caught|taught|left|met|read|hit|cut`;
+
+function normTxt(s){ return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[’‘]/g,"'"); }
+function escRe(s){ return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
+function kwRegex(alt){
+  const parts=normTxt(alt).trim().split('...').map(p=>'(?<!\\w)'+escRe(p.trim()).replace(/\s+/g,'\\s+')+'(?!\\w)');
+  return new RegExp(parts.join('[^\\n\\d]{0,40}?'));
+}
+function kwFound(text,kw){ const t=normTxt(text); return kw.split('|').some(a=>kwRegex(a).test(t)); }
+function kwLabel(kw){ return kw.split('|')[0].replace(/\.\.\./g,' … '); }
+function snip(s){ s=s.replace(/\s+/g,' ').trim(); return s.length>70?s.slice(0,67)+'…':s; }
+
+function correctAnswer(text, keywords, model){
+  const good=[], errors=[], found=[], missing=[];
+  const seen=new Set();
+  const addGood=s=>{const k=snip(s).toLowerCase(); if(!seen.has(k)&&good.length<6){seen.add(k);good.push(snip(s));}};
+  const addErr=msg=>{ if(!errors.includes(msg)) errors.push(msg); };
+  let m;
+
+  // 1) "shall [actor] ..." sin "allow ... to"  (cubre también "shall passengers request")
+  const reShallActor=new RegExp(String.raw`\b(shall|must|should|could)\s+(?!allow\b|be\b|not\b)((?:the\s+|a\s+|an\s+)?(?:${ACTOR_NOUNS}))\b(?:\s+(\w+))?`,'gi');
+  while((m=reShallActor.exec(text))){
+    const actor=m[2].replace(/^(the|a|an)\s+/i,''), verb=m[3]&&!/^(to|and|or)$/i.test(m[3])?m[3]:'[verb]';
+    addErr(`"${snip(m[0])}" → después de "${m[1].toLowerCase()}" va un verbo. Falta "allow … to": "${m[1].toLowerCase()} allow ${actor} to ${verb}".`);
+  }
+  // 5a) "allow [actor] [verbo]" sin "to"
+  const reAllowNoTo=new RegExp(String.raw`\ballows?\s+((?:the\s+)?(?:${ACTOR_NOUNS}))\s+(?!to\b)(${BASE_VERBS.join('|')})\b`,'gi');
+  while((m=reAllowNoTo.exec(text))) addErr(`"${snip(m[0])}" → falta "to": "allow ${m[1]} to ${m[2]}".`);
+  // 5b) modal + verbo conjugado ("shall allows", "must provides")
+  const reModalConj=new RegExp(String.raw`\b(shall|must|should|could|will|can)\s+(not\s+)?(${Object.keys(CONJ).join('|')})\b`,'gi');
+  while((m=reModalConj.exec(text))) addErr(`"${snip(m[0])}" → después de un modal el verbo va en forma base: "${m[1].toLowerCase()} ${m[2]||''}${CONJ[m[3].toLowerCase()]}".`);
+
+  // 2) is/are + p.p. en contexto de pasado (marcadores de tiempo o modelo en Simple Past Passive)
+  const passivePresSrc=String.raw`\b(is|are)\s+(being\s+)?(?:${ADV}\s+)?(${PP})\b`;
+  const pastCtx = /\b(yesterday|ago|last\s+(?:week|month|year|night|time)|in\s+(?:19|20)\d\d)\b/i.test(text)
+               || (new RegExp(String.raw`\b(?:was|were)\s+(?:being\s+)?(?:${ADV}\s+)?(?:${PP})\b`,'i').test(model)
+                   && !new RegExp(passivePresSrc,'i').test(model));
+  if(pastCtx){
+    const re=new RegExp(passivePresSrc,'gi');
+    while((m=re.exec(text))){
+      const be=m[1].toLowerCase()==='is'?'was':'were';
+      addErr(`"${snip(m[0])}" → el contexto es pasado: usá "${be} ${m[2]||''}${m[3]}" (Simple Past Passive).`);
+    }
+  }
+  // 3) "will" dentro de la cláusula IF
+  const reIfWill=/\bif\b[^,.;:\n]*?\b(will|won't)\b[^,.;:\n]*/gi;
+  while((m=reIfWill.exec(text))) addErr(`"${snip(m[0])}" → nunca "will" en la cláusula IF. Usá presente: "If + present, … will + verbo".`);
+
+  // 4) voz pasiva sin "by": "was fixed the developer"
+  const reNoBy=new RegExp(String.raw`\b(was|were|been|is|are|be)\s+(${PP})\s+(the|a|an)\s+(\w+)`,'gi');
+  while((m=reNoBy.exec(text))) addErr(`"${snip(m[0])}" → falta "by" antes del agente: "${m[1]} ${m[2]} by ${m[3]} ${m[4]}".`);
+  // 4b) el modelo tiene agente ("by") y la respuesta no
+  const modelAgent=new RegExp(String.raw`\b(?:was|were|been|be|is|are)\s+(?:${ADV}\s+)?(?:${PP})\b[^.\n]*\bby\b`,'i').test(model);
+  if(modelAgent && !/\bby\b/i.test(text))
+    addErr('El modelo usa voz pasiva con agente y tu respuesta no tiene "by". Revisá: Objeto + was/were + p.p. + by + agente.');
+
+  // Estructuras correctas encontradas en el texto
+  [ /\b(?:shall|must|should|could)\s+allow\s+[\w\s]{1,30}?\s+to\s+\w+/gi,
+    new RegExp(String.raw`\b(?:was|were)\s+(?:being\s+)?(?:${ADV}\s+)?(?:${PP})\b(?:\s+by\s+(?:the\s+|a\s+|an\s+)?\w+)?`,'gi'),
+    new RegExp(String.raw`\b(?:has|have)\s+been\s+(?:${ADV}\s+)?(?:${PP})\b(?:\s+by\s+(?:the\s+)?\w+)?`,'gi'),
+    new RegExp(String.raw`\b(?:must|shall|should|could|can|will)\s+(?:not\s+)?be\s+(?:${ADV}\s+)?(?:${PP})\b(?:\s+by\s+(?:the\s+)?\w+)?`,'gi'),
+    /\bif\b[^,.;:\n]{1,60},\s*[^.\n]{0,40}?\b(?:will|won't)\s+\w+/gi,
+  ].forEach(re=>{ while((m=re.exec(text))){ if(!/\bif\b[^,.;:\n]*\bwill\b/i.test(m[0].split(',')[0]+',')) addGood(m[0]); } });
+
+  (keywords||[]).forEach(k=>(kwFound(text,k)?found:missing).push(k));
+  return {good, errors, found, missing};
+}
+
+function renderCorrection(text, keywords, model){
+  const r=correctAnswer(text, keywords, model);
+  const box=el('div','corr');
+  const hd=el('div','corr-hd'); hd.innerHTML='<span>🧠 Corrección automática</span>';
+  if(keywords&&keywords.length){const sc=el('span','corr-score');sc.textContent=`keywords ${r.found.length}/${keywords.length}`;hd.appendChild(sc);}
+  box.appendChild(hd);
+  const sec=(cls,title)=>{const s=el('div','corr-sec '+cls);const t=el('div','corr-t');t.textContent=title;s.appendChild(t);box.appendChild(s);return s;};
+  const none=(s,msg)=>{const n=el('div','corr-none');n.textContent=msg;s.appendChild(n);};
+  const chips=(s,list,cls)=>{const c=el('div','chips');list.forEach(k=>{const ch=el('span','chip '+cls);ch.textContent=kwLabel(k);ch.title=k.replace(/\|/g,' / ');c.appendChild(ch);});s.appendChild(c);};
+
+  const ok=sec('corr-ok','✓ Estructuras correctas');
+  if(r.found.length) chips(ok,r.found,'chip-ok');
+  r.good.forEach(g=>{const i=el('div','corr-item');i.textContent=g;ok.appendChild(i);});
+  if(!r.found.length&&!r.good.length) none(ok,'No se detectaron estructuras clave del modelo.');
+
+  const ko=sec('corr-ko','✗ Errores detectados');
+  if(r.errors.length) r.errors.forEach(e=>{const i=el('div','corr-item');i.textContent=e;ko.appendChild(i);});
+  else none(ko,'No se detectaron errores de las reglas del curso.');
+
+  const ms=sec('corr-miss','⚠ Palabras clave faltantes');
+  if(!keywords||!keywords.length) none(ms,'Este ejercicio no tiene keywords definidas.');
+  else if(r.missing.length) chips(ms,r.missing,'chip-miss');
+  else none(ms,'¡Usaste todas las palabras clave!');
+
+  const note=el('div','corr-note');note.textContent='Corrección por reglas — es orientativa. Compará siempre con el modelo de abajo.';box.appendChild(note);
+  return box;
+}
+
+// Textarea + botón bloqueado hasta MIN_CHARS caracteres (sin re-render al tipear)
+function answerInput(inpCls, value, onDraft, btnCls, btnText, onSubmit){
+  const wrap=el('div');
+  const inp=el('textarea',inpCls);inp.placeholder='Escribí tu respuesta acá...';inp.value=value||'';wrap.appendChild(inp);
+  const btn=el('button',btnCls);btn.textContent=btnText;
+  const lock=el('div','ans-lock');lock.textContent='Escribí tu respuesta antes de ver el modelo.';
+  const sync=()=>{const ok=inp.value.trim().length>=MIN_CHARS;btn.disabled=!ok;lock.style.display=ok?'none':'';};
+  inp.oninput=()=>{onDraft(inp.value);sync();};
+  btn.onclick=()=>{if(inp.value.trim().length>=MIN_CHARS) onSubmit(inp.value);};
+  sync();
+  return {wrap, btn, lock};
+}
+function yourAnswer(text){
+  const d=el('div','your-ans');d.innerHTML='<div class="prod-ans-lbl">Tu respuesta</div>';
+  const t=el('div');t.textContent=text;d.appendChild(t);return d;
 }
 
 // ════════════════════════════════════════════════════════════════════
@@ -798,7 +1031,7 @@ function render(){
   const main=document.getElementById('main');
   const bc=document.getElementById('bc');
   main.innerHTML='';
-  saveQState();
+  saveQState(); saveSRSState();
   if(S.view==='home'){ bc.textContent=''; main.appendChild(renderHome()); }
   else if(S.view==='grammar'){ bc.textContent=findTopic().name; main.appendChild(renderGrammarTopic(findTopic())); }
   else if(S.view==='srs'){ bc.textContent=findTopic().name; main.appendChild(renderSRS(findTopic())); }
@@ -813,10 +1046,10 @@ function openTopic(t, view){
   S.view=view; S.topicId=t.id;
   S.mode = (view==='srs') ? 'srs-theory' : 'theory';
   S.qIdx=0; S.answered=false; S.score=0; S.total=0;
-  S.showAnswer=false; S.chosenIdx=null;
-  // restore saved step for SRS
-  S.srsStep = (view==='srs') ? getSavedStep(t.id) : 0;
-  S.srsShown=false;
+  S.showAnswer=false; S.chosenIdx=null; S.draft=''; S.userAnswer='';
+  // restaurar paso, modelo visto y borrador del SRS
+  if(view==='srs') loadSRSState(t.id);
+  else { S.srsStep=0; S.srsShown=false; S.srsDraft=''; S.srsAnswer=''; }
   render();
 }
 
@@ -972,19 +1205,20 @@ function renderProduce(t){
   const pr=el('div','produce-prompt');pr.textContent=q.prompt;box.appendChild(pr);
   if(q.hint){const h=el('div','produce-hint');h.textContent='💡 '+q.hint;box.appendChild(h);}
   if(!S.showAnswer){
-    const inp=el('textarea','produce-inp');inp.placeholder='Escribí tu respuesta acá...';box.appendChild(inp);
-    const acts=el('div','produce-acts');
-    const rev=el('button','btn-reveal');rev.textContent='Ver respuesta';
-    rev.onclick=()=>{S.showAnswer=true;render();};acts.appendChild(rev);box.appendChild(acts);
+    const ai=answerInput('produce-inp', S.draft, v=>{S.draft=v;saveQState();}, 'btn-reveal', 'Ver respuesta',
+      v=>{S.userAnswer=v;S.showAnswer=true;render();});
+    box.appendChild(ai.wrap);
+    const acts=el('div','produce-acts');acts.appendChild(ai.btn);box.appendChild(acts);box.appendChild(ai.lock);
   } else {
+    if(S.userAnswer){ box.appendChild(yourAnswer(S.userAnswer)); box.appendChild(renderCorrection(S.userAnswer, q.keywords, q.answer)); }
     const ans=el('div','prod-ans');
     ans.innerHTML=`<div class="prod-ans-lbl">Respuesta correcta</div><div class="prod-ans-text">${q.answer.replace(/\n/g,'<br>')}</div><div class="prod-ans-why">${q.why}</div>`;
     box.appendChild(ans);
     const self=el('div','prod-self');
     const ok=el('button','btn-ok');ok.textContent='✓ Lo tenía';
-    ok.onclick=()=>{S.score++;S.total++;S.qIdx++;S.showAnswer=false;render();};
+    ok.onclick=()=>{S.score++;S.total++;S.qIdx++;S.showAnswer=false;S.draft='';S.userAnswer='';render();};
     const ko=el('button','btn-ko');ko.textContent='✗ Me equivoqué';
-    ko.onclick=()=>{S.total++;S.qIdx++;S.showAnswer=false;render();};
+    ko.onclick=()=>{S.total++;S.qIdx++;S.showAnswer=false;S.draft='';S.userAnswer='';render();};
     self.appendChild(ok);self.appendChild(ko);box.appendChild(self);
   }
   div.appendChild(box);return div;
@@ -1028,7 +1262,7 @@ function renderSRS(t){
     btn.onclick=()=>{
       // save current step before switching
       if(S.view==='srs') saveProgress(t.id,'tab-switch');
-      S.mode=id;S.srsShown=false;render();
+      S.mode=id;render();
     };
     tabs.appendChild(btn);
   });
@@ -1060,7 +1294,7 @@ function renderSRS(t){
     saveProgress(t.id,'completed');
     const res=el('div','results');
     res.innerHTML=`<div class="results-score">✓</div><div class="results-lbl">Situación completada</div><div class="results-msg">Completaste todos los pasos de esta situación problemática.</div>`;
-    const retry=el('button','results-btn');retry.textContent='↩ Reintentar';retry.onclick=()=>{S.srsStep=0;S.srsShown=false;render();};
+    const retry=el('button','results-btn');retry.textContent='↩ Reintentar';retry.onclick=()=>{S.srsStep=0;S.srsShown=false;S.srsDraft='';S.srsAnswer='';render();};
     const home=el('button','results-btn sec');home.textContent='⌂ Menú';home.onclick=()=>{S.view='home';render();};
     res.appendChild(retry);res.appendChild(home);div.appendChild(res);return div;
   }
@@ -1082,17 +1316,18 @@ function renderSRS(t){
   const desc=el('div','srs-step-desc');desc.textContent=step.desc;stepBox.appendChild(desc);
 
   if(!S.srsShown){
-    const inp=el('textarea','srs-inp');inp.placeholder='Escribí tu respuesta acá...';stepBox.appendChild(inp);
-    const checkBtn=el('button','srs-check-btn');checkBtn.textContent='Ver modelo →';
-    checkBtn.onclick=()=>{S.srsShown=true;render();};stepBox.appendChild(checkBtn);
+    const ai=answerInput('srs-inp', S.srsDraft, v=>{S.srsDraft=v;saveSRSState();}, 'srs-check-btn', 'Ver modelo →',
+      v=>{S.srsAnswer=v;S.srsShown=true;render();});
+    stepBox.appendChild(ai.wrap);stepBox.appendChild(ai.btn);stepBox.appendChild(ai.lock);
   } else {
+    if(S.srsAnswer){ stepBox.appendChild(yourAnswer(S.srsAnswer)); stepBox.appendChild(renderCorrection(S.srsAnswer, step.keywords, step.model)); }
     const fb=el('div','srs-fb');
     fb.innerHTML=`<h4>Respuesta modelo</h4>${step.model.split('\n').map(l=>`<div class="model">${l.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`).join('')}<div class="tip" style="margin-top:8px">💡 ${step.tip}</div>`;
     stepBox.appendChild(fb);
     const nav=el('div','srs-nav');
     const nxt=el('button','srs-nav-btn');
     nxt.textContent=S.srsStep+1<t.steps.length?'Siguiente paso →':'Completar situación ✓';
-    nxt.onclick=()=>{saveProgress(t.id,'step-'+S.srsStep);S.srsStep++;S.srsShown=false;render();};
+    nxt.onclick=()=>{saveProgress(t.id,'step-'+S.srsStep);S.srsStep++;S.srsShown=false;S.srsDraft='';S.srsAnswer='';render();};
     nav.appendChild(nxt);stepBox.appendChild(nav);
   }
 
