@@ -42,6 +42,10 @@ main{flex:1;padding:28px 20px;max-width:900px;margin:0 auto;width:100%}
 .srs-theory p strong{color:var(--text)}
 .srs-theory .formula{background:var(--surface2);border-left:3px solid var(--green);border-radius:var(--rs);padding:8px 12px;font-family:var(--mono);font-size:11px;color:var(--green);margin:6px 0}
 .srs-theory .warn{background:#2d1f00;border:1px solid var(--yellow);border-radius:var(--rs);padding:8px 12px;font-size:11px;color:var(--yellow);margin:6px 0;white-space:pre-line}
+.srs-theory-title{font-size:17px;font-weight:800;color:var(--green);margin-bottom:14px;line-height:1.4}
+.srs-theory .kw-table td.ex-ok{color:var(--green);font-weight:400}
+.srs-theory .kw-table td.ex-bad{color:var(--red)}
+.srs-theory .table-wrap .kw-table{min-width:0}
 .srs-theory-done{margin-top:16px;background:var(--green);color:#000;border:none;padding:10px 20px;border-radius:var(--rs);cursor:pointer;font-size:13px;font-weight:700;width:100%}
 /* HOME */
 .home-title{font-size:26px;font-weight:800;margin-bottom:4px}
@@ -492,6 +496,36 @@ Administrator: Generate usage reports / Manage system settings / Monitor system 
     id:'srs-nimbuscloud', tag:'srs', tagLabel:'Situación Problemática',
     name:'NimbusCloud — Incident Response',
     desc:'Tabla de incidentes reales. Completá acciones estándar, traducí al español e identificá términos técnicos.',
+    customTheory:{
+      title:'NimbusCloud — Incident Response & Technical Translation',
+      sections:[
+        {title:'¿Qué es un Incident Response Table?',
+         content:`Una tabla de respuesta a incidentes documenta errores del sistema en producción. Para cada incidente se registra: el error (<strong>Incident/Error</strong>), la causa raíz (<strong>Root Cause</strong>) y la acción estándar requerida (<strong>Standard Action Required</strong>).<br><br>Las acciones siguen el formato SRS: <strong>"The system shall..."</strong> o verbos modales según prioridad.`},
+        {title:'Vocabulario técnico clave',
+         table:{headers:['Término','Traducción técnica','NO usar'], colClass:['','ex-ok','ex-bad'], rows:[
+           ['rate limit','límite de solicitudes','"límite de tasa"'],
+           ['throttle','regular/limitar el flujo','"ahogar"'],
+           ['rollback','revertir / restaurar al estado anterior','"rodar hacia atrás"'],
+           ['deadlock','interbloqueo','"bloqueo muerto"'],
+           ['on-call engineer','ingeniero de guardia','"ingeniero en llamada"'],
+           ['exponential backoff','reintento con espera exponencial','"retroceso exponencial"'],
+           ['dead-letter queue','cola de mensajes fallidos','"cola de letras muertas"'],
+           ['data drift','desviación de datos','"deriva de datos"'],
+           ['failed silently','falló sin generar alertas','"falló silenciosamente"'],
+           ['orphaned data','datos huérfanos','sin equivalente literal'],
+           ['timeout','tiempo de espera agotado','"tiempo muerto"'],
+         ]}},
+        {title:'Cómo traducir con glosario técnico',
+         content:`No traducís palabra por palabra. Traducís el <strong>SIGNIFICADO</strong> completo de cada oración. Cuando aparece un término del glosario, usás la definición para elegir el equivalente técnico correcto en español.`,
+         examples:[
+           {lbl:'❌ Literal',text:'"El trabajo de invalidación de caché falló silenciosamente."'},
+           {lbl:'✅ Técnico',text:'"El proceso de invalidación de caché falló sin generar alertas."'},
+         ]},
+        {title:'⚠️ shall be = voz pasiva formal',
+         warn:'Cuando ves "shall be + participio pasado" es voz pasiva en requerimiento formal:\n\nshall be throttled → será regulado\nshall be rolled back → serán revertidas\nshall be retrained → será reentrenado',
+         formula:'shall be + past participle (+ by + agente)'},
+      ]
+    },
     interview:`<strong style="color:var(--yellow)">📋 Incident Response Table — NimbusCloud Data Platform</strong><br><br>
 <strong>Incident 1: Error 429 — Too Many Requests</strong><br>
 <span class="client">Root cause: A single client exceeded the rate limit by sending more than 100 API calls per minute, above the threshold of the current subscription tier.</span><br><br>
@@ -574,6 +608,33 @@ Acción: El modelo será reentrenado. Se implementará monitoreo automático de 
     tagLabel: 'Situación Problemática',
     name: 'Professional Profile',
     desc: 'Escribí un perfil profesional en inglés combinando vocabulario técnico + voz activa y pasiva.',
+    customTheory: {
+      title: 'Professional Profile — Technical Writing for LinkedIn/CV',
+      sections: [
+        {title:'¿Qué es un perfil profesional técnico?',
+         content:`Un perfil profesional para LinkedIn o CV describe <strong>quién sos</strong>, <strong>qué sabés hacer</strong> y <strong>hacia dónde vas</strong>. En inglés técnico debe combinar vocabulario de software development con <strong>voz activa</strong> para mostrar iniciativa y <strong>voz pasiva</strong> para enfatizar resultados.<br><br><strong>Estructura obligatoria:</strong><br>Párrafo 1: Introducción (quién sos, dónde estudiás, stack principal)<br>Párrafo 2: Experiencia y proyectos (con vocabulario técnico)<br>Párrafo 3: Meta profesional (adónde querés llegar)`},
+        {title:'Active vs Passive Voice en perfiles',
+         table:{headers:['Active Voice (iniciativa propia)','Passive Voice (resultados/trabajo en equipo)'], colClass:['',''], rows:[
+           ['"I designed the system"','"The system was designed to handle..."'],
+           ['"I built a RESTful API"','"Tests were implemented before deployment"'],
+           ['"I led the backend team"','"The architecture was optimized for scalability"'],
+         ]},
+         after:`<strong>Regla:</strong> Usá activa para lo que VOS hiciste. Usá pasiva para resultados o trabajo colaborativo.`},
+        {title:'Vocabulary Bank — tocá para ver la traducción',
+         vocab:[
+           {en:'RESTful API',es:'API RESTful',ex:'I built a RESTful API for the order management system.'},
+           {en:'Version control',es:'control de versiones',ex:'I use Git for version control on every project.'},
+           {en:'Containerization',es:'contenedorización',ex:'Docker is used for containerization.'},
+           {en:'CI/CD pipeline',es:'pipeline de integración y despliegue continuo',ex:'The CI/CD pipeline automates deployment.'},
+           {en:'Microservices architecture',es:'arquitectura de microservicios',ex:'The system uses a microservices architecture.'},
+           {en:'Unit testing',es:'pruebas unitarias',ex:'Unit tests were implemented to ensure code quality.'},
+           {en:'Technical debt',es:'deuda técnica',ex:'Technical debt was reduced by refactoring the codebase.'},
+           {en:'Scalability',es:'escalabilidad',ex:'The application was designed for scalability.'},
+         ]},
+        {title:'⚠️ Errores comunes en perfiles técnicos',
+         warn:'❌ "I am a developer with experience in many technologies."\n✅ "I build REST APIs using Python and Flask, and manage databases with PostgreSQL."\nSé específico. Los perfiles vagos no convencen a nadie.\n\n❌ Usar solo voz pasiva: "Everything was done by me."\n✅ Combinar: "I designed the architecture. The system was later optimized by the team."'},
+      ]
+    },
     interview: `<strong style="color:var(--yellow)">📋 Contexto — Writing a Professional Profile</strong><br><br>
 <span class="client">You are a junior software developer writing your LinkedIn profile. Your profile must include technical vocabulary, sentences in active voice to show initiative, and at least 2 sentences in passive voice to emphasize results. Structure: introduction → experience/skills → career goal.</span><br><br>
 <strong>Vocabulary Bank (definí cada término antes de escribir):</strong><br>
@@ -638,6 +699,35 @@ I am currently developing my skills in CI/CD pipelines and containerization with
     tagLabel: 'Situación Problemática',
     name: 'ShopSmart — Incident Report',
     desc: 'Unauthorized data access en una API de producción. Escribí el informe formal completo.',
+    customTheory: {
+      title: 'ShopSmart — How to Write a Security Incident Report',
+      sections: [
+        {title:'¿Qué es un Incident Report?',
+         content:`Un Incident Report es un documento formal que se escribe después de una falla, brecha de seguridad o evento inesperado en producción. Su objetivo es explicar <strong>QUÉ</strong> pasó, <strong>POR QUÉ</strong> pasó y <strong>CÓMO</strong> se va a prevenir que vuelva a pasar.<br><br>La audiencia es <strong>no técnica</strong> (managers, clientes, stakeholders), por lo que debe ser claro y preciso.`},
+        {title:'Estructura del Incident Report',
+         table:{headers:['Sección','Contenido','Tiempo verbal'], colClass:['','','kw'], rows:[
+           ['Executive Summary','Qué pasó, cuándo, qué fue afectado, impacto','Past Simple'],
+           ['Root Cause Analysis','Por qué fue posible el incidente (causa raíz, no síntoma)','Past Simple / Past Perfect'],
+           ['Corrective Actions','Qué se hizo y qué se va a hacer','Present Perfect (ya hecho) + will (planificado)'],
+           ['Conclusion','Estado actual del sistema y próximos pasos','Present Perfect + will'],
+         ]}},
+        {title:'Root Cause vs Symptom vs Trigger',
+         table:{headers:['Término','Definición + Ejemplo ShopSmart'], colClass:['',''], rows:[
+           ['Root Cause','La razón técnica real del problema. Ej: "Missing ownership check in the API endpoint."'],
+           ['Symptom','Lo que observaron los usuarios. Ej: "Customers could see other customers\' orders."'],
+           ['Trigger','El evento que hizo visible el problema. Ej: "A customer\'s report on September 1st."'],
+         ]}},
+        {title:'Tiempos verbales en Incident Reports',
+         table:{headers:['Tiempo','Uso','Ejemplo'], colClass:['','','ex-ok'], rows:[
+           ['Past Simple','Narrar lo que pasó','"The server reached 98% CPU usage."'],
+           ['Past Perfect','Condición previa a otra acción pasada','"The IDs had been assigned sequentially before the breach."'],
+           ['Present Perfect','Resultado ya implementado','"An authorization check has been added."'],
+           ['will + base verb','Acción planificada futura','"The team will conduct penetration testing."'],
+         ]}},
+        {title:'⚠️ Errores comunes',
+         warn:'❌ Copiar el timeline en el Executive Summary → el summary sintetiza, no repite cronológicamente.\n\n❌ Confundir síntoma con causa raíz → "El servidor falló porque había muchos usuarios" es un síntoma, no la causa.\n\n❌ Mezclar tiempos verbales → acciones ya hechas van en Present Perfect, planificadas en will. Nunca mezcles en la misma acción.\n\n❌ Tono informal → nunca "the code was bad" o "they forgot". Explicá la relación técnica con precisión.'},
+      ]
+    },
     interview: `<strong style="color:var(--yellow)">📋 Situación — ShopSmart Order Management API</strong><br><br>
 <span class="client"><strong>Sistema:</strong> ShopSmart (plataforma e-commerce para pequeñas empresas)<br>
 <strong>Fecha:</strong> 1 de septiembre de 2026 | <strong>Severidad:</strong> HIGH | <strong>Estado:</strong> Resuelto</span><br><br>
@@ -1256,7 +1346,7 @@ function renderSRS(t){
 
   // Tabs: Teoría | Resolver
   const tabs=el('div','mode-tabs');
-  [['srs-theory','📖 Teoría SRS'],['srs-practice','🎯 Resolver']].forEach(([id,lbl])=>{
+  [['srs-theory',t.customTheory?'📖 Teoría':'📖 Teoría SRS'],['srs-practice','🎯 Resolver']].forEach(([id,lbl])=>{
     const btn=el('button','mode-tab');setTabLabel(btn,lbl);
     if(S.mode===id) btn.classList.add('active');
     btn.onclick=()=>{
@@ -1270,13 +1360,37 @@ function renderSRS(t){
 
   // Theory tab
   if(S.mode==='srs-theory'){
-    SRS_THEORY.sections.forEach(sec=>{
+    // teoría propia del topic (customTheory) o la SRS genérica
+    const th=t.customTheory||SRS_THEORY;
+    if(th.title){const h=el('div','srs-theory-title');h.textContent=th.title;div.appendChild(h);}
+    th.sections.forEach(sec=>{
       const block=el('div','srs-theory');
       block.innerHTML=`<h2>${sec.title}</h2>`;
-      if(sec.formula){const f=el('div','formula');f.textContent=sec.formula;block.appendChild(f);}
+      if(sec.formula&&!sec.warn){const f=el('div','formula');f.textContent=sec.formula;block.appendChild(f);}
       if(sec.content){const p=el('p');p.innerHTML=sec.content;block.appendChild(p);}
       if(sec.warn){const w=el('div','warn');w.textContent=sec.warn;block.appendChild(w);}
-      if(sec.examples){sec.examples.forEach(ex=>{const e=el('div','ex-box');e.innerHTML=`<div class="ex-ok">${ex}</div>`;block.appendChild(e);});}
+      if(sec.formula&&sec.warn){const f=el('div','formula');f.textContent=sec.formula;block.appendChild(f);}
+      if(sec.examples){sec.examples.forEach(ex=>{const e=el('div','ex-box');
+        if(typeof ex==='string') e.innerHTML=`<div class="ex-ok">${ex}</div>`;
+        else e.innerHTML=`<div class="ex-lbl">${ex.lbl}</div><div class="${ex.lbl.includes('❌')?'ex-bad':'ex-ok'}">${ex.text}</div>`;
+        block.appendChild(e);});}
+      if(sec.table){
+        const tbl=el('table','kw-table');
+        const hdr=el('tr');sec.table.headers.forEach(h=>{const c=el('th');c.textContent=h;hdr.appendChild(c);});tbl.appendChild(hdr);
+        sec.table.rows.forEach(row=>{const tr=el('tr');row.forEach((v,i)=>{const td=el('td',(sec.table.colClass||[])[i]||'');td.textContent=v;tr.appendChild(td);});tbl.appendChild(tr);});
+        const wrap=el('div','table-wrap');wrap.appendChild(tbl);block.appendChild(wrap);
+      }
+      if(sec.after){const p=el('p');p.style.marginTop='10px';p.innerHTML=sec.after;block.appendChild(p);}
+      if(sec.vocab){
+        const grid=el('div','vocab-grid');
+        sec.vocab.forEach(v=>{
+          const card=el('div','vc');
+          card.innerHTML=`<div class="vc-en">${v.en}</div><div class="vc-es">${v.es}</div><div class="vc-ex">${v.ex}</div><div class="vc-tap">Tocar para revelar</div>`;
+          card.onclick=()=>card.classList.toggle('flipped');
+          grid.appendChild(card);
+        });
+        block.appendChild(grid);
+      }
       div.appendChild(block);
     });
     const doneBtn=el('button','srs-theory-done');doneBtn.textContent='Entendido — ir a Resolver →';
