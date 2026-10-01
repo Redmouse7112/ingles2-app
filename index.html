@@ -524,6 +524,16 @@ Administrator: Generate usage reports / Manage system settings / Monitor system 
         {title:'⚠️ shall be = voz pasiva formal',
          warn:'Cuando ves "shall be + participio pasado" es voz pasiva en requerimiento formal:\n\nshall be throttled → será regulado\nshall be rolled back → serán revertidas\nshall be retrained → será reentrenado',
          formula:'shall be + past participle (+ by + agente)'},
+        {title:'Standard Actions Required — Formato y ejemplos',
+         formula:'The system shall [acción]. + modal según prioridad si corresponde.',
+         examples:[
+           {lbl:'❌ Incorrecto',text:'"Fix the error." → demasiado vago, sin estructura formal'},
+           {lbl:'✅ Correcto',text:'"The affected client shall be throttled immediately."'},
+           {lbl:'✅ Correcto',text:'"Both transactions shall be automatically rolled back."'},
+           {lbl:'✅ Correcto',text:'"The payload shall be moved to a dead-letter queue if all retries fail."'},
+           {lbl:'✅ Correcto',text:'"The on-call engineer must be notified within 5 minutes."'},
+         ],
+         warn:'Cada acción sigue el patrón: detectar → resolver → prevenir.\n\nshall = obligación formal (requerimiento)\nmust = crítico, sin esto el sistema falla\nshould = importante pero no bloqueante\n\nLa acción debe ser específica y medible. Nunca escribas solo "fix the issue" o "contact the team" — explicá cómo y cuándo.'},
       ]
     },
     interview:`<strong style="color:var(--yellow)">📋 Incident Response Table — NimbusCloud Data Platform</strong><br><br>
@@ -1366,31 +1376,34 @@ function renderSRS(t){
     th.sections.forEach(sec=>{
       const block=el('div','srs-theory');
       block.innerHTML=`<h2>${sec.title}</h2>`;
-      if(sec.formula&&!sec.warn){const f=el('div','formula');f.textContent=sec.formula;block.appendChild(f);}
-      if(sec.content){const p=el('p');p.innerHTML=sec.content;block.appendChild(p);}
-      if(sec.warn){const w=el('div','warn');w.textContent=sec.warn;block.appendChild(w);}
-      if(sec.formula&&sec.warn){const f=el('div','formula');f.textContent=sec.formula;block.appendChild(f);}
-      if(sec.examples){sec.examples.forEach(ex=>{const e=el('div','ex-box');
-        if(typeof ex==='string') e.innerHTML=`<div class="ex-ok">${ex}</div>`;
-        else e.innerHTML=`<div class="ex-lbl">${ex.lbl}</div><div class="${ex.lbl.includes('❌')?'ex-bad':'ex-ok'}">${ex.text}</div>`;
-        block.appendChild(e);});}
-      if(sec.table){
-        const tbl=el('table','kw-table');
-        const hdr=el('tr');sec.table.headers.forEach(h=>{const c=el('th');c.textContent=h;hdr.appendChild(c);});tbl.appendChild(hdr);
-        sec.table.rows.forEach(row=>{const tr=el('tr');row.forEach((v,i)=>{const td=el('td',(sec.table.colClass||[])[i]||'');td.textContent=v;tr.appendChild(td);});tbl.appendChild(tr);});
-        const wrap=el('div','table-wrap');wrap.appendChild(tbl);block.appendChild(wrap);
-      }
-      if(sec.after){const p=el('p');p.style.marginTop='10px';p.innerHTML=sec.after;block.appendChild(p);}
-      if(sec.vocab){
-        const grid=el('div','vocab-grid');
-        sec.vocab.forEach(v=>{
-          const card=el('div','vc');
-          card.innerHTML=`<div class="vc-en">${v.en}</div><div class="vc-es">${v.es}</div><div class="vc-ex">${v.ex}</div><div class="vc-tap">Tocar para revelar</div>`;
-          card.onclick=()=>card.classList.toggle('flipped');
-          grid.appendChild(card);
-        });
-        block.appendChild(grid);
-      }
+      // cada parte se dibuja en el orden en que está escrita en la sección
+      const parts={
+        formula:()=>{const f=el('div','formula');f.textContent=sec.formula;block.appendChild(f);},
+        content:()=>{const p=el('p');p.innerHTML=sec.content;block.appendChild(p);},
+        warn:()=>{const w=el('div','warn');w.textContent=sec.warn;block.appendChild(w);},
+        examples:()=>sec.examples.forEach(ex=>{const e=el('div','ex-box');
+          if(typeof ex==='string') e.innerHTML=`<div class="ex-ok">${ex}</div>`;
+          else e.innerHTML=`<div class="ex-lbl">${ex.lbl}</div><div class="${ex.lbl.includes('❌')?'ex-bad':'ex-ok'}">${ex.text}</div>`;
+          block.appendChild(e);}),
+        table:()=>{
+          const tbl=el('table','kw-table');
+          const hdr=el('tr');sec.table.headers.forEach(h=>{const c=el('th');c.textContent=h;hdr.appendChild(c);});tbl.appendChild(hdr);
+          sec.table.rows.forEach(row=>{const tr=el('tr');row.forEach((v,i)=>{const td=el('td',(sec.table.colClass||[])[i]||'');td.textContent=v;tr.appendChild(td);});tbl.appendChild(tr);});
+          const wrap=el('div','table-wrap');wrap.appendChild(tbl);block.appendChild(wrap);
+        },
+        after:()=>{const p=el('p');p.style.marginTop='10px';p.innerHTML=sec.after;block.appendChild(p);},
+        vocab:()=>{
+          const grid=el('div','vocab-grid');
+          sec.vocab.forEach(v=>{
+            const card=el('div','vc');
+            card.innerHTML=`<div class="vc-en">${v.en}</div><div class="vc-es">${v.es}</div><div class="vc-ex">${v.ex}</div><div class="vc-tap">Tocar para revelar</div>`;
+            card.onclick=()=>card.classList.toggle('flipped');
+            grid.appendChild(card);
+          });
+          block.appendChild(grid);
+        },
+      };
+      Object.keys(sec).forEach(k=>{ if(parts[k]&&sec[k]) parts[k](); });
       div.appendChild(block);
     });
     const doneBtn=el('button','srs-theory-done');doneBtn.textContent='Entendido — ir a Resolver →';
