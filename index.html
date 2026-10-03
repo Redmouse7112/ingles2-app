@@ -28,6 +28,13 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 header h1{font-size:14px;font-weight:700;color:var(--accent);letter-spacing:.05em;text-transform:uppercase}
 header .sub{font-size:12px;color:var(--text2)}
 #bc{font-size:11px;color:var(--text3);margin-left:auto}
+#install-btn{background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:12px;padding:5px 12px;cursor:pointer;font-weight:600;white-space:nowrap}
+#install-btn[hidden]{display:none}
+#news{background:#1a2744;border-left:3px solid #4f8ef7;padding:10px 16px;font-size:12px;color:var(--text2);line-height:1.6;display:flex;align-items:flex-start;gap:12px}
+#news[hidden]{display:none}
+#news-text{flex:1}
+#news-close{background:none;border:1px solid var(--border);color:var(--text2);border-radius:var(--rs);padding:4px 10px;font-size:11px;cursor:pointer;white-space:nowrap}
+#news-close:hover{border-color:var(--accent);color:var(--accent)}
 
 main{flex:1;padding:28px 20px;max-width:900px;margin:0 auto;width:100%}
 
@@ -229,13 +236,54 @@ main{flex:1;padding:28px 20px;max-width:900px;margin:0 auto;width:100%}
 <body>
 <div id="app">
   <header>
+    <button id="install-btn" type="button" hidden>⬇ Instalar</button>
     <h1>Inglés Técnico II</h1>
-    <span class="sub">Study App v2</span>
+    <span class="sub" id="app-ver">v4.1</span>
     <div id="bc"></div>
   </header>
+  <div id="news" hidden>
+    <div id="news-text"></div>
+    <button id="news-close" type="button">✕ Cerrar</button>
+  </div>
   <main id="main"></main>
 </div>
 <script>
+const APP_VERSION = '4.1';
+const APP_NEWS = '🆕 Novedades v4.1: Teoría específica para NimbusCloud, Professional Profile y ShopSmart · Corrección automática de errores gramaticales · Botón bloqueado hasta escribir tu respuesta · Progreso guardado entre pestañas · Instalable en Android';
+
+// ── Botón "Instalar" (solo en navegador; Chrome no dispara el evento si ya está instalada) ──
+let installPrompt = null;
+const installBtn = document.getElementById('install-btn');
+const isStandalone = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();               // guardamos el evento para lanzarlo desde nuestro botón
+  installPrompt = e;
+  if (!isStandalone()) installBtn.hidden = false;
+});
+installBtn.onclick = async () => {
+  if (!installPrompt) return;
+  installPrompt.prompt();
+  await installPrompt.userChoice;
+  installPrompt = null;             // el evento sirve una sola vez
+  installBtn.hidden = true;
+};
+window.addEventListener('appinstalled', () => { installPrompt = null; installBtn.hidden = true; });
+
+// ── Versión + aviso de novedades (ing2v2_version_seen) ──
+document.getElementById('app-ver').textContent = 'v' + APP_VERSION;
+(function showNews(){
+  let seen = null;
+  try { seen = localStorage.getItem('ing2v2_version_seen'); } catch(e) {}
+  if (seen === APP_VERSION) return;
+  const news = document.getElementById('news');
+  document.getElementById('news-text').textContent = APP_NEWS;
+  news.hidden = false;
+  document.getElementById('news-close').onclick = () => {
+    try { localStorage.setItem('ing2v2_version_seen', APP_VERSION); } catch(e) {}
+    news.hidden = true;
+  };
+})();
+
 // ════════════════════════════════════════════════════════════════════
 // DATA
 // ════════════════════════════════════════════════════════════════════
@@ -810,6 +858,146 @@ Action 5 — Developer Training (Planned): The team will conduct a mandatory sec
         tip: 'El Conclusion no repite el Executive Summary — habla del estado ACTUAL y los pasos FUTUROS. Usá Present Perfect para lo resuelto y will para lo que viene.'
       }
     ]
+  },  {
+    id: 'srs-studybuddy',
+    tag: 'srs',
+    tagLabel: 'Situación Problemática',
+    name: 'StudyBuddy App',
+    desc: 'Entrevista con cliente universitaria. Extraé FR, NFR, MoSCoW y actores.',
+
+    customTheory: {
+      title: 'StudyBuddy — SRS para aplicaciones móviles educativas',
+      sections: [
+        {
+          title: 'Contexto',
+          content: 'Las apps educativas móviles son el tipo de proyecto más común en entrevistas de trabajo junior. El cliente suele ser no técnico y describe features en lenguaje informal — el analista debe traducirlo a requerimientos formales en inglés técnico.'
+        },
+        {
+          title: 'Vocabulario específico',
+          table: [
+            { col1: 'progress tracker', col2: 'herramienta que muestra el avance del usuario', col3: '"The progress tracker updates automatically when a task is completed."' },
+            { col1: 'due date', col2: 'fecha de entrega / vencimiento', col3: '"Users can set a due date for each homework task."' },
+            { col1: 'reminder', col2: 'recordatorio automático', col3: '"The system shall send a reminder 24 hours before the deadline."' },
+            { col1: 'study group', col2: 'grupo de estudio colaborativo', col3: '"Students can create study groups and invite classmates."' },
+            { col1: 'notification', col2: 'notificación del sistema', col3: '"Users can choose which notifications they want to receive."' },
+            { col1: 'schedule', col2: 'horario / agenda', col3: '"Students can add their weekly class schedule to the app."' },
+          ],
+          headers: ['Término', 'Significado', 'Ejemplo']
+        },
+        {
+          title: '⚠️ Trampa común — primera versión vs features futuras',
+          warn: 'Lo que el cliente dice "I don\'t need immediately" o "we can add later" → WON\'T en MoSCoW.\n\nEn esta entrevista Emma dice explícitamente: "We can add more advanced features later." → Esas features van como COULD o WON\'T, no como MUST.'
+        },
+        {
+          title: 'Actores del sistema',
+          table: [
+            { col1: 'Student', col2: 'Usuario principal. Usa la app para organizar su estudio.' },
+            { col1: 'Study Group Member', col2: 'Colabora dentro de un grupo de estudio.' },
+            { col1: 'System (Automated)', col2: 'Envía notificaciones y actualiza el progreso automáticamente.' },
+          ],
+          headers: ['Actor', 'Rol en el sistema']
+        },
+        {
+          title: 'Standard Actions Required — Formato',
+          formula: 'The system shall [acción]. + modal según prioridad.',
+          examples: [
+            { lbl: '✅', text: 'The system shall allow users to create an account and log in.' },
+            { lbl: '✅', text: 'Reminders shall be sent automatically by the system before each deadline.' },
+            { lbl: '❌', text: 'Add a reminder. → demasiado vago, sin estructura formal.' },
+          ]
+        }
+      ]
+    },
+
+    interview: `<strong>Alex (Dev/PM):</strong> Hi Emma! It's nice to finally meet. Thanks for making time today.<br>
+<span class="client"><strong>Emma (Client):</strong> Hi Alex! No problem. I've been thinking about this app for a while, so I'm excited to share the idea.</span><br>
+<strong>Alex:</strong> Great! Tell me about it. What's the main goal?<br>
+<span class="client"><strong>Emma:</strong> I want an app that helps university students organize their study time. Most of them use several apps for notes, reminders, and schedules, but I think everything should be in one place.</span><br>
+<strong>Alex:</strong> That makes sense. So, where would a new user start?<br>
+<span class="client"><strong>Emma:</strong> First, they should create an account and log in. Then they can add their subjects and weekly class schedule.</span><br>
+<strong>Alex:</strong> Okay, and what can they do with each subject?<br>
+<span class="client"><strong>Emma:</strong> They should be able to upload class notes, attach PDF files, and create personal study notes. I also want them to organize everything by subject.</span><br>
+<strong>Alex:</strong> Nice. What about assignments and exams?<br>
+<span class="client"><strong>Emma:</strong> That's one of the most important parts. Users should create homework tasks, set due dates, and receive reminders before the deadline. The app should also have a calendar showing exams and assignments.</span><br>
+<strong>Alex:</strong> Sounds useful. Do you want students to work alone or collaborate with others?<br>
+<span class="client"><strong>Emma:</strong> Both. They should be able to create study groups and invite classmates. Inside each group, members can share files, post messages, and comment on shared notes.</span><br>
+<strong>Alex:</strong> I like that idea. Any other features?<br>
+<span class="client"><strong>Emma:</strong> Yes. I'd love a progress tracker. Every time a student finishes a task, the app should update their progress automatically. It would also be great if users could see how many hours they studied each week.</span><br>
+<strong>Alex:</strong> Perfect. Should the app send notifications?<br>
+<span class="client"><strong>Emma:</strong> Definitely. I want reminders for homework, exams, and study sessions. Maybe users can choose which notifications they want to receive.</span><br>
+<strong>Alex:</strong> Good idea. Are you thinking about mobile only?<br>
+<span class="client"><strong>Emma:</strong> Mainly mobile, because students are always using their phones, but a web version would also be useful for studying at home.</span><br>
+<strong>Alex:</strong> Got it. And for the first release?<br>
+<span class="client"><strong>Emma:</strong> I don't need every feature immediately. The most important things are user accounts, schedules, tasks, reminders, file uploads, and study groups. We can add more advanced features later.</span><br>
+<strong>Alex:</strong> Excellent. I'll organize these requirements, prepare a proposal, and send you an estimate next week.<br>
+<span class="client"><strong>Emma:</strong> Perfect! I'm looking forward to it.</span><br>
+<strong>Alex:</strong> Thanks, Emma. Talk to you soon!<br>
+<span class="client"><strong>Emma:</strong> Bye!</span>`,
+
+    steps: [
+      {
+        id: 'fr',
+        title: 'Paso 1 — Functional Requirements',
+        desc: 'Escribí mínimo 8 FR en formato "The system shall [acción]." Recordá: FR = qué hace el sistema.',
+        model: `FR-01: The system shall allow users to create an account and log in.
+FR-02: The system shall allow users to add their subjects and weekly class schedule.
+FR-03: The system shall allow users to upload class notes and attach PDF files by subject.
+FR-04: The system shall allow users to create homework tasks and set due dates.
+FR-05: The system shall display a calendar showing upcoming exams and assignment deadlines.
+FR-06: The system shall send automatic reminders before homework deadlines and exam dates.
+FR-07: The system shall allow users to create study groups and invite classmates.
+FR-08: The system shall allow group members to share files, post messages, and comment on notes.
+FR-09: The system shall automatically update the user's progress tracker when a task is completed.
+FR-10: The system shall display the total study hours logged by the user each week.
+FR-11: The system shall allow users to customize which notifications they want to receive.
+FR-12: The system shall be available as a mobile app and as a web version.`,
+        tip: 'Recordá la fórmula: "allow + [actor] + to + [verbo]". El actor puede ser "users", "students" o "group members" según el contexto.'
+      },
+      {
+        id: 'nfr',
+        title: 'Paso 2 — Non-Functional Requirements',
+        desc: 'Escribí mínimo 3 NFR. Recordá: NFR = qué tan bien funciona el sistema.',
+        model: `NFR-01: The system shall be compatible with Android and iOS devices. (Portability)
+NFR-02: The system shall provide a web version accessible from any modern browser. (Accessibility)
+NFR-03: The system shall respond to user requests in less than 3 seconds. (Performance)
+NFR-04: All user data shall be stored securely and protected from unauthorized access. (Security)
+NFR-05: The system shall be available 7 days a week with a minimum uptime of 99%. (Availability)`,
+        tip: 'Los NFR de esta app vienen de lo que dijo Emma sobre disponibilidad (mobile + web) y seguridad de datos de estudiantes.'
+      },
+      {
+        id: 'moscow',
+        title: 'Paso 3 — Priorización MoSCoW',
+        desc: 'Reescribí los requerimientos usando must / should / could / won\'t según prioridad. Emma dejó en claro cuáles son esenciales para la primera versión.',
+        model: `MUST: The system must allow users to create accounts, add subjects, create tasks, and receive reminders.
+MUST: The system must allow users to upload class notes and PDF files organized by subject.
+SHOULD: The system should allow users to create study groups and share files with classmates.
+SHOULD: The system should display a weekly progress tracker showing completed tasks and study hours.
+COULD: The system could allow users to customize which notifications they want to receive.
+COULD: The system could provide study time analytics with charts and weekly comparisons.
+WON'T: The system won't include AI-based study recommendations in the first release.`,
+        tip: 'Emma dijo: "I don\'t need every feature immediately" y "We can add more advanced features later." → Esas van como COULD o WON\'T.'
+      },
+      {
+        id: 'actors',
+        title: 'Paso 4 — Actores y Casos de Uso',
+        desc: 'Identificá los actores y listá mínimo 3 casos de uso por actor. Formato: Verbo + Complemento.',
+        model: `Student: Create an account and log in / Add subjects and class schedule / Upload notes and PDF files / Create homework tasks and set due dates / View progress tracker / Create or join a study group
+Study Group Member: Share files with the group / Post messages in the group / Comment on shared notes
+System (Automated): Send reminders before deadlines / Update progress tracker automatically / Send customizable notifications`,
+        tip: 'El System (Automated) es un actor válido cuando realiza acciones sin intervención del usuario — como enviar recordatorios automáticamente.'
+      },
+      {
+        id: 'passive',
+        title: 'Paso 5 — Reglas de Negocio en Voz Pasiva',
+        desc: 'Reescribí mínimo 3 reglas en voz pasiva. Formato: "[Objeto] must/shall be [p.p.] by [agente]."',
+        model: `1. Reminders shall be sent automatically by the system before each deadline.
+2. Class notes and PDF files can be uploaded and organized by subject by the user.
+3. Study groups can be created and managed by students.
+4. The progress tracker is updated automatically when a task is marked as completed.
+5. Notifications can be customized and enabled or disabled by each user.`,
+        tip: 'Algunas reglas no necesitan "by + agente" si el agente es obvio o no importa. Ejemplo: "The progress tracker is updated automatically."'
+      }
+    ]
   },
 ];
 
@@ -907,6 +1095,13 @@ const KEYWORDS = {
     'active-passive':['was deployed','identified','were optimized','integrated','was migrated','by'],
     'profile-writing':['junior','developer','experience','version control|git','api','was|were'],
     'checklist':['vocabulary','active','passive','grammar','words|word count'],
+  },
+  'srs-studybuddy':{
+    'fr':['shall','allow...to','system'],
+    'nfr':['shall','seconds','secure|securely','available'],
+    'moscow':['must','should','could',"won't|will not",'allow...to'],
+    'actors':['student','create','share','send','update'],
+    'passive':['shall be','can be','is updated','by'],
   },
   'srs-shopsmart':{
     'challenge':['authentication|authenticated','authorization','ownership|owner','order id|order ids','unauthorized access','sequential|sequentially'],
@@ -1387,8 +1582,13 @@ function renderSRS(t){
           block.appendChild(e);}),
         table:()=>{
           const tbl=el('table','kw-table');
-          const hdr=el('tr');sec.table.headers.forEach(h=>{const c=el('th');c.textContent=h;hdr.appendChild(c);});tbl.appendChild(hdr);
-          sec.table.rows.forEach(row=>{const tr=el('tr');row.forEach((v,i)=>{const td=el('td',(sec.table.colClass||[])[i]||'');td.textContent=v;tr.appendChild(td);});tbl.appendChild(tr);});
+          // acepta {headers, rows:[[...]]} o el formato de gramática: [{col1,col2,col3}] + sec.headers
+          const legacy=Array.isArray(sec.table);
+          const headers=legacy?(sec.headers||[]):sec.table.headers;
+          const rows=legacy?sec.table.map(r=>[r.col1,r.col2,r.col3].filter(v=>v!==undefined)):sec.table.rows;
+          const colClass=legacy?[]:(sec.table.colClass||[]);
+          const hdr=el('tr');headers.forEach(h=>{const c=el('th');c.textContent=h;hdr.appendChild(c);});tbl.appendChild(hdr);
+          rows.forEach(row=>{const tr=el('tr');row.forEach((v,i)=>{const td=el('td',colClass[i]||'');td.textContent=v;tr.appendChild(td);});tbl.appendChild(tr);});
           const wrap=el('div','table-wrap');wrap.appendChild(tbl);block.appendChild(wrap);
         },
         after:()=>{const p=el('p');p.style.marginTop='10px';p.innerHTML=sec.after;block.appendChild(p);},
