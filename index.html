@@ -199,6 +199,9 @@ main{flex:1;padding:28px 20px;max-width:900px;margin:0 auto;width:100%}
 .corr-ok .corr-item{background:#052e16;color:#86efac}
 .corr-ko .corr-item{background:#2d0a0a;color:#fca5a5}
 .corr-none{font-size:11px;color:var(--text3);font-style:italic}
+.corr-info .corr-t{color:var(--accent)}
+.corr-item.corr-warn{background:#2d1f00;color:var(--yellow)}
+.corr-item.corr-fine{background:var(--surface2);color:var(--text2)}
 .corr-note{font-size:10px;color:var(--text3);margin-top:12px;font-style:italic}
 
 /* PASOS SRS con saltos de línea + líneas vacías en modelos */
@@ -228,6 +231,14 @@ main{flex:1;padding:28px 20px;max-width:900px;margin:0 auto;width:100%}
   .mode-tab:first-child:nth-last-child(n+3) .tab-ico,
   .mode-tab:first-child:nth-last-child(n+3)~.mode-tab .tab-ico{font-size:16px}
 }
+@media (max-width:600px){
+  /* tablas de teoría (hasta 4 columnas) entran sin scroll lateral */
+  .srs-theory .kw-table{font-size:11px;table-layout:auto}
+  .srs-theory .kw-table th,.srs-theory .kw-table td{padding:6px 5px;overflow-wrap:anywhere;hyphens:auto}
+  .srs-theory .kw-table th{font-size:9px;letter-spacing:.03em;overflow-wrap:normal;hyphens:none}
+  .srs-theory .kw-table td:first-child{overflow-wrap:normal;hyphens:none;min-width:58px}
+  .srs-theory .kw-table .kw{font-size:10px}
+}
 @media (max-width:360px){
   .vocab-grid{grid-template-columns:1fr}
 }
@@ -238,7 +249,7 @@ main{flex:1;padding:28px 20px;max-width:900px;margin:0 auto;width:100%}
   <header>
     <button id="install-btn" type="button" hidden>⬇ Instalar</button>
     <h1>Inglés Técnico II</h1>
-    <span class="sub" id="app-ver">v4.2</span>
+    <span class="sub" id="app-ver">v4.3</span>
     <div id="bc"></div>
   </header>
   <div id="news" hidden>
@@ -248,8 +259,8 @@ main{flex:1;padding:28px 20px;max-width:900px;margin:0 auto;width:100%}
   <main id="main"></main>
 </div>
 <script>
-const APP_VERSION = '4.2';
-const APP_NEWS = '🆕 Novedades v4.2: Nueva situación problemática — StudyBuddy App (entrevista con cliente universitaria) · Botón de instalación PWA en el header · Sistema de novedades por versión';
+const APP_VERSION = '4.3';
+const APP_NEWS = '🆕 Novedades v4.3: Teoría ampliada de NimbusCloud y Professional Profile (método, plantillas, banco de verbos y glosario) · Corrección mejorada de voz pasiva (verbo incorrecto, objeto después de la pasiva, than/that, fail/failure)';
 
 // ── Botón "Instalar" (solo en navegador; Chrome no dispara el evento si ya está instalada) ──
 let installPrompt = null;
@@ -549,6 +560,86 @@ Administrator: Generate usage reports / Manage system settings / Monitor system 
       sections:[
         {title:'¿Qué es un Incident Response Table?',
          content:`Una tabla de respuesta a incidentes documenta errores del sistema en producción. Para cada incidente se registra: el error (<strong>Incident/Error</strong>), la causa raíz (<strong>Root Cause</strong>) y la acción estándar requerida (<strong>Standard Action Required</strong>).<br><br>Las acciones siguen el formato SRS: <strong>"The system shall..."</strong> o verbos modales según prioridad.`},
+        {
+          title: 'Método: de la causa a la acción (3 preguntas)',
+          content: 'Cada fila de la tabla tiene una Root Cause (POR QUÉ pasó). La Standard Action Required NO repite la causa: dice QUÉ se hace para responder. Antes de escribir, respondé 3 preguntas: 1) ¿Cómo contengo el problema ahora? 2) ¿Cómo lo resuelvo? 3) ¿Cómo evito que se repita, o a quién escalo? Cada respuesta es UNA oración.',
+          table: {
+            headers: ['Incidente', '1. Contener', '2. Resolver', '3. Prevenir / escalar'],
+            rows: [
+              ['Error 429', 'The affected client shall be throttled immediately.', 'The API key shall be temporarily suspended if the limit continues to be exceeded.', 'The client shall be informed of the rate limit policy.'],
+              ['Stale Cache Read', 'The cache shall be manually invalidated and flushed.', 'The cache invalidation job shall be reviewed and fixed.', 'A fallback mechanism shall be implemented to detect silent failures.'],
+              ['Deadlock (1213)', 'Both transactions shall be automatically rolled back.', 'The system shall retry using exponential backoff.', 'The database access order shall be standardized to prevent future deadlocks.'],
+              ['Webhook Failure', 'The system shall retry delivery using exponential backoff up to five times.', 'The payload shall be moved to a dead-letter queue if all attempts fail.', 'The on-call engineer shall be notified and the partner\'s team shall be contacted.'],
+              ['Data Drift', 'The on-call engineer shall be notified immediately.', 'The model shall be retrained using recent production data.', 'Automated data drift monitoring shall be implemented.']
+            ]
+          },
+          warn: 'Regla: la acción es una RESPUESTA (throttle, notify, retry, roll back...). Si tu oración cuenta qué pasó ("a client exceeded the limit"), es la causa, no la acción.'
+        },
+        {
+          title: 'Plantillas — completá los espacios',
+          content: 'Usá estas 5 plantillas. Cambiás solo lo que está entre corchetes.',
+          examples: [
+            { lbl: 'Plantilla 1 — algo recibe la acción (pasiva)', text: 'The [object] shall be [past participle] [how / when].  →  The affected client shall be throttled immediately.' },
+            { lbl: 'Plantilla 2 — el sistema hace la acción (activa)', text: 'The system shall [base verb] [object] [condition].  →  The system shall retry delivery using exponential backoff up to five times.' },
+            { lbl: 'Plantilla 3 — condición', text: 'If [problem persists / all attempts fail], the [object] shall be [past participle] to [place].  →  If all attempts fail, the payload shall be moved to a dead-letter queue.' },
+            { lbl: 'Plantilla 4 — notificación', text: 'The on-call engineer shall be notified [when / within X minutes].  →  The on-call engineer shall be notified immediately.' },
+            { lbl: 'Plantilla 5 — prevención', text: '[Mechanism / process] shall be [implemented / reviewed / standardized] to prevent [future problem].  →  The database access order shall be standardized to prevent future deadlocks.' }
+          ]
+        },
+        {
+          title: 'Banco de verbos de acción (verbo → participio)',
+          table: {
+            headers: ['Verbo', 'Participio', 'Español', 'Ejemplo en pasiva'],
+            rows: [
+              ['throttle', 'throttled', 'regular el flujo', 'The client shall be throttled immediately.'],
+              ['suspend', 'suspended', 'suspender', 'The API key shall be suspended temporarily.'],
+              ['notify', 'notified', 'notificar', 'The on-call engineer shall be notified.'],
+              ['retry', 'retried', 'reintentar', 'The request shall be retried three times.'],
+              ['roll back', 'rolled back', 'revertir', 'Both transactions shall be rolled back.'],
+              ['invalidate', 'invalidated', 'invalidar', 'The cache shall be invalidated.'],
+              ['flush', 'flushed', 'vaciar', 'The cache shall be flushed.'],
+              ['move', 'moved', 'mover', 'The payload shall be moved to a dead-letter queue.'],
+              ['retrain', 'retrained', 'reentrenar', 'The model shall be retrained.'],
+              ['review', 'reviewed', 'revisar', 'The job shall be reviewed.'],
+              ['implement', 'implemented', 'implementar', 'A fallback mechanism shall be implemented.'],
+              ['standardize', 'standardized', 'estandarizar', 'The access order shall be standardized.'],
+              ['escalate', 'escalated', 'escalar / derivar', 'The incident shall be escalated to the DevOps team.'],
+              ['contact', 'contacted', 'contactar', 'The partner\'s team shall be contacted.'],
+              ['detect', 'detected', 'detectar', 'Silent failures shall be detected.'],
+              ['alert', 'alerted', 'alertar', 'The security team shall be alerted.']
+            ]
+          }
+        },
+        {
+          title: 'Glosario completo del worksheet (12 términos)',
+          table: {
+            headers: ['Término', 'Español técnico', 'Ejemplo'],
+            rows: [
+              ['rate limit', 'límite de solicitudes (máximo permitido en un período)', 'The client exceeded the rate limit.'],
+              ['throttle', 'regular / limitar el flujo de solicitudes', 'The system throttles excessive requests.'],
+              ['cache invalidation', 'invalidación de caché (marcar datos guardados como desactualizados)', 'The cache invalidation job failed silently.'],
+              ['fallback', 'mecanismo de respaldo / alternativa automática', 'A fallback mechanism shall be implemented.'],
+              ['deadlock', 'interbloqueo', 'A deadlock was detected between two transactions.'],
+              ['to roll back', 'revertir (volver a un estado anterior)', 'The transaction was rolled back.'],
+              ['on-call engineer', 'ingeniero de guardia', 'The on-call engineer shall be notified.'],
+              ['exponential backoff', 'reintento con espera exponencial', 'The system shall retry using exponential backoff.'],
+              ['dead-letter queue', 'cola de mensajes fallidos', 'Failed payloads are moved to a dead-letter queue.'],
+              ['data drift', 'desviación de datos', 'Data drift reduced the model\'s accuracy.'],
+              ['to degrade', 'degradarse / deteriorarse', 'Prediction accuracy degraded over time.'],
+              ['to escalate', 'escalar / derivar a un nivel superior', 'The issue was escalated to the backend team.']
+            ]
+          }
+        },
+        {
+          title: 'Errores comunes — corregidos',
+          examples: [
+            { lbl: '❌', text: 'The system shall be detected a single client exceeded the rate limit.' },
+            { lbl: '✅', text: 'The affected client shall be throttled immediately.  (o, en activa: The system shall detect clients that exceed the rate limit.)' },
+            { lbl: '❌', text: 'The system shall be presented a fail in the cache invalidation than failed after a deployment.' },
+            { lbl: '✅', text: 'The cache shall be manually invalidated and flushed.  (o: The system shall alert the on-call engineer when the cache invalidation job fails.)' }
+          ],
+          warn: 'Por qué estaban mal:\n1) Después de "shall be + participio" NO va un objeto. Si el sistema hace la acción, usá activa: "The system shall detect...". Si algo recibe la acción, ponelo de sujeto: "The client shall be throttled."\n2) "presented" no significa "detectar". En pasiva el verbo conserva su significado.\n3) "fail" es verbo; el sustantivo es "failure": "a failure in the job".\n4) "than" se usa para comparar (bigger than). Para unir una idea a un sustantivo usá "that": "a failure that occurred".\n5) Una Standard Action describe QUÉ SE HACE, no qué pasó.'
+        },
         {title:'Vocabulario técnico clave',
          table:{headers:['Término','Traducción técnica','NO usar'], colClass:['','ex-ok','ex-bad'], rows:[
            ['rate limit','límite de solicitudes','"límite de tasa"'],
@@ -671,6 +762,71 @@ Acción: El modelo será reentrenado. Se implementará monitoreo automático de 
       sections: [
         {title:'¿Qué es un perfil profesional técnico?',
          content:`Un perfil profesional para LinkedIn o CV describe <strong>quién sos</strong>, <strong>qué sabés hacer</strong> y <strong>hacia dónde vas</strong>. En inglés técnico debe combinar vocabulario de software development con <strong>voz activa</strong> para mostrar iniciativa y <strong>voz pasiva</strong> para enfatizar resultados.<br><br><strong>Estructura obligatoria:</strong><br>Párrafo 1: Introducción (quién sos, dónde estudiás, stack principal)<br>Párrafo 2: Experiencia y proyectos (con vocabulario técnico)<br>Párrafo 3: Meta profesional (adónde querés llegar)`},
+        {
+          title: 'Método: 3 párrafos, 3 plantillas',
+          content: 'Escribí el perfil en 3 párrafos. Cada uno tiene su plantilla; completá los corchetes con tus datos.',
+          examples: [
+            { lbl: 'Párrafo 1 — Introducción (50–70 palabras)', text: 'I am a [level] [role] currently [studying / working] at [place]. I have [time] of experience with [tech 1], [tech 2] and [tech 3]. I am passionate about [value].' },
+            { lbl: 'Párrafo 2 — Experiencia (110–150 palabras)', text: 'I have [designed / built / developed] [what] using [tech]. [What] was [past participle] to [result]. I use [tool] for [purpose] on every project.' },
+            { lbl: 'Párrafo 3 — Meta (40–60 palabras)', text: 'I am looking for a [position] where I can [contribute / learn / grow]. My goal is to become a [future role].' }
+          ]
+        },
+        {
+          title: 'Cómo definir un término (Vocabulary Bank)',
+          formula: '[Term] is a [category] that [what it does]. It is used to [purpose].',
+          examples: [
+            { lbl: 'Ejemplo', text: 'Version control is a system that tracks changes in code over time. It is used to collaborate and go back to earlier versions.' },
+            { lbl: 'Ejemplo', text: 'Containerization is a method of packaging an application with its dependencies. It is used to run the same app in any environment.' },
+            { lbl: 'Ejemplo', text: 'Scalability is the ability of a system to handle more users without losing performance.' }
+          ],
+          content: 'Categorías útiles: system, method, practice, tool, process, ability. Con tus propias palabras: si copiás del diccionario, la profe lo nota.'
+        },
+        {
+          title: 'Banco de verbos: activa vs pasiva',
+          table: {
+            headers: ['Verbo', 'Participio', 'Activa (iniciativa propia)', 'Pasiva (resultado)'],
+            rows: [
+              ['design', 'designed', 'I designed the database schema.', 'The database schema was designed for scalability.'],
+              ['build', 'built', 'I built a RESTful API.', 'A RESTful API was built for the order system.'],
+              ['develop', 'developed', 'I developed a web application.', 'The web application was developed with Laravel.'],
+              ['implement', 'implemented', 'I implemented unit tests.', 'Unit tests were implemented before deployment.'],
+              ['deploy', 'deployed', 'I deployed the app with Docker.', 'The app was deployed using containerization.'],
+              ['optimize', 'optimized', 'I optimized the SQL queries.', 'The queries were optimized to improve performance.'],
+              ['integrate', 'integrated', 'I integrated the payment API.', 'The payment API was integrated into the backend.'],
+              ['migrate', 'migrated', 'I migrated the legacy system.', 'The legacy system was migrated to microservices.'],
+              ['reduce', 'reduced', 'I reduced technical debt.', 'Technical debt was reduced by refactoring the code.']
+            ]
+          },
+          warn: 'Regla: ACTIVA para lo que hiciste vos ("I built..."). PASIVA para resultados o trabajo en equipo ("The API was tested..."). Mínimo 2 oraciones en pasiva en el perfil.'
+        },
+        {
+          title: 'Párrafo modelo anotado',
+          examples: [
+            { lbl: 'INTRO', text: 'I am a junior developer currently studying Software Development in Formosa, Argentina.' },
+            { lbl: 'ACTIVA', text: 'I built a RESTful API with PHP and Laravel for an order management system.' },
+            { lbl: 'PASIVA', text: 'The API was tested with unit tests before it was deployed.' },
+            { lbl: 'ACTIVA', text: 'I use Git and GitHub for version control on every project.' },
+            { lbl: 'PASIVA', text: 'Technical debt was reduced by refactoring the main module.' },
+            { lbl: 'META', text: 'I am looking for a junior role where I can grow into a backend specialist.' }
+          ]
+        },
+        {
+          title: 'Conectores útiles',
+          table: {
+            headers: ['Función', 'Conectores', 'Ejemplo'],
+            rows: [
+              ['Adición', 'in addition, furthermore, moreover', 'In addition, I use Git for version control.'],
+              ['Contraste', 'however, although, despite this', 'Although I am a junior, I have built three complete projects.'],
+              ['Causa', 'because of, due to', 'Due to my interest in backend, I learned Laravel.'],
+              ['Propósito', 'in order to, so that', 'I wrote unit tests in order to reduce bugs.'],
+              ['Resultado', 'as a result, therefore', 'As a result, the app was deployed without errors.']
+            ]
+          }
+        },
+        {
+          title: 'Checklist antes de entregar',
+          content: 'Extensión total: 200–300 palabras (intro 50–70 · experiencia 110–150 · meta 40–60). Mínimo 2 oraciones en pasiva. Mínimo 4 términos del Vocabulary Bank. Sin contracciones (I am, no I\'m). Releé buscando "to" después de need / want / allow. Verbos de la pasiva con el mismo significado que la idea original.'
+        },
         {title:'Active vs Passive Voice en perfiles',
          table:{headers:['Active Voice (iniciativa propia)','Passive Voice (resultados/trabajo en equipo)'], colClass:['',''], rows:[
            ['"I designed the system"','"The system was designed to handle..."'],
@@ -1084,7 +1240,10 @@ const KEYWORDS = {
     'passive':['must be|shall be|can be','by'],
   },
   'srs-nimbuscloud':{
-    'actions':['shall be','throttled|throttle','rolled back|rollback','retry','notified|notify','dead-letter queue'],
+    'actions':{
+      keywords:['shall be','throttled|throttle','rolled back|rollback','retry','notified|notify','dead-letter queue'],
+      actionVerbs:'throttle|throttled|suspend|suspended|notify|notified|retry|retried|roll|rolled|invalidate|invalidated|flush|flushed|move|moved|retrain|retrained|alert|alerted|escalate|escalated|review|reviewed|implement|implemented|standardize|standardized|contact|contacted|inform|informed',
+    },
     'translation':['solicitudes','causa','accion','cache','reintentar|reintentara'],
     'matching':['1...c','2...b','3...a','4...e','5...d'],
     'report':['alerta critica','rango','direcciones ip|ip','limite de solicitudes','credenciales','contrasenas'],
@@ -1093,7 +1252,7 @@ const KEYWORDS = {
   'srs-profile':{
     'vocab':['restful api','version control','containerization|container','ci/cd','microservices','unit testing|unit test','technical debt','scalability'],
     'active-passive':['was deployed','identified','were optimized','integrated','was migrated','by'],
-    'profile-writing':['junior','developer','experience','version control|git','api','was|were'],
+    'profile-writing':{keywords:['junior','developer','experience','version control|git','api','was|were'], profileChecks:true},
     'checklist':['vocabulary','active','passive','grammar','words|word count'],
   },
   'srs-studybuddy':{
@@ -1114,8 +1273,11 @@ const KEYWORDS = {
 [...GRAMMAR_TOPICS,...TROUBLESHOOTING_TOPICS].forEach(t=>(t.produce||[]).forEach((p,i)=>{
   const k=KEYWORDS[t.id]&&KEYWORDS[t.id].produce&&KEYWORDS[t.id].produce[i]; if(k&&!p.keywords) p.keywords=k;
 }));
+// un paso puede ser una lista de keywords o {keywords, actionVerbs, profileChecks}
 SRS_TOPICS.forEach(t=>t.steps.forEach(s=>{
-  const k=KEYWORDS[t.id]&&KEYWORDS[t.id][s.id]; if(k&&!s.keywords) s.keywords=k;
+  const k=KEYWORDS[t.id]&&KEYWORDS[t.id][s.id]; if(!k) return;
+  const spec=Array.isArray(k)?{keywords:k}:k;
+  Object.keys(spec).forEach(f=>{ if(s[f]===undefined) s[f]=spec[f]; });
 }));
 
 // ════════════════════════════════════════════════════════════════════
@@ -1208,8 +1370,22 @@ function kwFound(text,kw){ const t=normTxt(text); return kw.split('|').some(a=>k
 function kwLabel(kw){ return kw.split('|')[0].replace(/\.\.\./g,' … '); }
 function snip(s){ s=s.replace(/\s+/g,' ').trim(); return s.length>70?s.slice(0,67)+'…':s; }
 
-function correctAnswer(text, keywords, model){
-  const good=[], errors=[], found=[], missing=[];
+// verbos con los que suele empezar (mal) una oración pasiva — regla R3
+const R3_VERBS='search|reserve|send|register|renew|report|track|view|create|update|delete|add|upload|generate|manage|approve|monitor|request|cancel|pay|rate';
+const IRREGULAR_PP={send:['sent'],write:['written'],run:['run'],pay:['paid'],cancel:['cancelled','canceled']};
+function participle(v){
+  if(IRREGULAR_PP[v]) return IRREGULAR_PP[v];
+  if(/e$/.test(v)) return [v+'d'];
+  if(/[^aeiou]y$/.test(v)) return [v.slice(0,-1)+'ied'];
+  return [v+'ed'];
+}
+function isEnglish(t){
+  const c=re=>(t.match(re)||[]).length;
+  return c(/\b(?:the|and|of|to|is|are|was|were|be|shall|will|with|for|by)\b/gi) >= c(/\b(?:el|la|los|las|que|del|por|para|una|es|son|fue|ser[aá]|con|se)\b/gi);
+}
+
+function correctAnswer(text, keywords, model, opts={}){
+  const good=[], errors=[], found=[], missing=[], notices=[], info=[];
   const seen=new Set();
   const addGood=s=>{const k=snip(s).toLowerCase(); if(!seen.has(k)&&good.length<6){seen.add(k);good.push(snip(s));}};
   const addErr=msg=>{ if(!errors.includes(msg)) errors.push(msg); };
@@ -1246,11 +1422,58 @@ function correctAnswer(text, keywords, model){
 
   // 4) voz pasiva sin "by": "was fixed the developer"
   const reNoBy=new RegExp(String.raw`\b(was|were|been|is|are|be)\s+(${PP})\s+(the|a|an)\s+(\w+)`,'gi');
-  while((m=reNoBy.exec(text))) addErr(`"${snip(m[0])}" → falta "by" antes del agente: "${m[1]} ${m[2]} by ${m[3]} ${m[4]}".`);
+  while((m=reNoBy.exec(text))){
+    if(m[1].toLowerCase()==='be' && /\b(?:shall|must|should|can|could|will)\s+$/i.test(text.slice(0,m.index))) continue; // lo cubre R1
+    addErr(`"${snip(m[0])}" → falta "by" antes del agente: "${m[1]} ${m[2]} by ${m[3]} ${m[4]}".`);
+  }
   // 4b) el modelo tiene agente ("by") y la respuesta no
   const modelAgent=new RegExp(String.raw`\b(?:was|were|been|be|is|are)\s+(?:${ADV}\s+)?(?:${PP})\b[^.\n]*\bby\b`,'i').test(model);
   if(modelAgent && !/\bby\b/i.test(text))
     addErr('El modelo usa voz pasiva con agente y tu respuesta no tiene "by". Revisá: Objeto + was/were + p.p. + by + agente.');
+
+  // ── Reglas v4.3 (solo respuestas en inglés, evaluadas por línea) ──
+  if(isEnglish(text)){
+    const MODAL='shall|must|should|can|could|will';
+    const R1=new RegExp(String.raw`\b(?:${MODAL})\s+be\s+(?:\w+(?:ed|en)|sent|found|built|made|run|set|written|done|shown|taken|given|kept|held|put|read)\s+(?:a|an|the|that|several|many)\b`,'gi');
+    const R2=new RegExp(String.raw`\bthe system\s+(?:${MODAL})\s+be\s+(?:detected|presented|registered|searched|reserved|sent|notified|reported|logged|created|deleted|processed|rejected)\b`,'gi');
+    const R3=new RegExp(String.raw`^(${R3_VERBS})\b\s+\S`,'i');
+    const R3be=new RegExp(String.raw`\b(?:${MODAL})\s+be\b`,'i');
+    const R3after=new RegExp(String.raw`\b(?:${MODAL})\s+be\s+(?:${ADV}\s+)?(\w+)`,'i');
+    const R4=/\bthan\s+(?:failed|fails|occurred|exceeded|returned|caused|was|were|is|are)\b/gi;
+    const R5a=/\b(?:a|the|an)\s+fail\b/gi;
+    const R5b=/\ba\s+(?:error|issue|incident|update|endpoint|exception|alert|attempt|action|account|application)\b/gi;
+    const R6=/\b(?:system|app|users?|students?|members?|librarians?|drivers?|passengers?)\s+(?:a|an|the)\s+(?:could|should|must|shall|can|will|won't)\b/gi;
+    text.split('\n').forEach(line=>{
+      const each=(re,fn)=>{ re.lastIndex=0; let x; while((x=re.exec(line))) fn(x); };
+      each(R1,x=>addErr(`"${snip(x[0])}" → después de una pasiva no va un objeto. Si el sistema hace la acción usá activa ("The system shall detect...") o poné lo que recibe la acción de sujeto ("The client shall be throttled").`));
+      each(R2,x=>addErr(`"${snip(x[0])}" → ¿el sistema RECIBE la acción? Si es el sistema quien la hace, usá "The system shall + verbo base" (ej: "The system shall detect...").`));
+      // R3: la línea (sin numeración) empieza con un verbo base y usa pasiva
+      const body=line.replace(/^\s*(?:\d+[.)]?\s*|[-•*]\s*)/,'');
+      const v=body.match(R3);
+      if(v && R3be.test(body)){
+        const verb=v[1].toLowerCase(), expected=participle(verb), after=body.match(R3after);
+        let msg=`La oración empieza con un verbo ("${v[1]}"). En pasiva el sujeto es una cosa: "Books can be searched by members".`;
+        if(after && !expected.includes(after[1].toLowerCase()))
+          msg+=` El verbo de la pasiva ("${after[1]}") no coincide con el de la idea ("${verb}" → "${expected[0]}"). En pasiva el verbo no cambia.`;
+        addErr(msg);
+      }
+      each(R4,x=>addErr(`"${snip(x[0])}" → "than" se usa para comparar (bigger than). Para unir una idea a un sustantivo usá "that": "a failure that occurred".`));
+      each(R5a,x=>addErr(`"${snip(x[0])}" → "fail" es verbo. El sustantivo es "failure": "a failure in the job".`));
+      each(R5b,x=>addErr(`"${snip(x[0])}" → antes de vocal se usa "an": "an error".`));
+      each(R6,x=>addErr(`"${snip(x[0])}" → sobra una palabra entre el sujeto y el modal: "The system a could" → "The system could".`));
+    });
+  }
+
+  // R7: Standard Action = respuesta, no causa (pasos con actionVerbs)
+  if(opts.actionVerbs && !new RegExp(String.raw`\b(?:${opts.actionVerbs})\b`,'i').test(text))
+    notices.push('Tu respuesta no tiene un verbo de ACCIÓN (throttle, notify, retry, roll back...). Una Standard Action dice qué se hace, no qué pasó.');
+  // R8: chequeos del perfil (informativos)
+  if(opts.profileChecks){
+    const words=text.trim().split(/\s+/).filter(Boolean).length;
+    const passives=(text.match(/\b(?:was|were|is|are|has been|have been|can be|shall be|must be)\s+\w+(?:ed|en)\b/gi)||[]).length;
+    info.push({text:`Palabras: ${words} (objetivo 200–300)`, warn:words<200||words>300});
+    info.push({text:`Oraciones en pasiva detectadas: ${passives} (mínimo 2)`, warn:passives<2});
+  }
 
   // Estructuras correctas encontradas en el texto
   [ /\b(?:shall|must|should|could)\s+allow\s+[\w\s]{1,30}?\s+to\s+\w+/gi,
@@ -1261,11 +1484,11 @@ function correctAnswer(text, keywords, model){
   ].forEach(re=>{ while((m=re.exec(text))){ if(!/\bif\b[^,.;:\n]*\bwill\b/i.test(m[0].split(',')[0]+',')) addGood(m[0]); } });
 
   (keywords||[]).forEach(k=>(kwFound(text,k)?found:missing).push(k));
-  return {good, errors, found, missing};
+  return {good, errors, found, missing, notices, info};
 }
 
-function renderCorrection(text, keywords, model){
-  const r=correctAnswer(text, keywords, model);
+function renderCorrection(text, keywords, model, opts={}){
+  const r=correctAnswer(text, keywords, model, opts);
   const box=el('div','corr');
   const hd=el('div','corr-hd'); hd.innerHTML='<span>🧠 Corrección automática</span>';
   if(keywords&&keywords.length){const sc=el('span','corr-score');sc.textContent=`keywords ${r.found.length}/${keywords.length}`;hd.appendChild(sc);}
@@ -1282,6 +1505,12 @@ function renderCorrection(text, keywords, model){
   const ko=sec('corr-ko','✗ Errores detectados');
   if(r.errors.length) r.errors.forEach(e=>{const i=el('div','corr-item');i.textContent=e;ko.appendChild(i);});
   else none(ko,'No se detectaron errores de las reglas del curso.');
+
+  if(r.notices.length||r.info.length){
+    const ck=sec('corr-info','📏 Chequeos del paso');
+    r.notices.forEach(n=>{const i=el('div','corr-item corr-warn');i.textContent=n;ck.appendChild(i);});
+    r.info.forEach(n=>{const i=el('div','corr-item '+(n.warn?'corr-warn':'corr-fine'));i.textContent=(n.warn?'⚠ ':'✓ ')+n.text;ck.appendChild(i);});
+  }
 
   const ms=sec('corr-miss','⚠ Palabras clave faltantes');
   if(!keywords||!keywords.length) none(ms,'Este ejercicio no tiene keywords definidas.');
@@ -1505,7 +1734,7 @@ function renderProduce(t){
     box.appendChild(ai.wrap);
     const acts=el('div','produce-acts');acts.appendChild(ai.btn);box.appendChild(acts);box.appendChild(ai.lock);
   } else {
-    if(S.userAnswer){ box.appendChild(yourAnswer(S.userAnswer)); box.appendChild(renderCorrection(S.userAnswer, q.keywords, q.answer)); }
+    if(S.userAnswer){ box.appendChild(yourAnswer(S.userAnswer)); box.appendChild(renderCorrection(S.userAnswer, q.keywords, q.answer, q)); }
     const ans=el('div','prod-ans');
     ans.innerHTML=`<div class="prod-ans-lbl">Respuesta correcta</div><div class="prod-ans-text">${q.answer.replace(/\n/g,'<br>')}</div><div class="prod-ans-why">${q.why}</div>`;
     box.appendChild(ans);
@@ -1541,6 +1770,19 @@ const SRS_THEORY = {
     {title:'Reglas de Negocio en Voz Pasiva',
      formula:'[Objeto] must/shall be [participio pasado] by [agente].',
      examples:['Activa: Drivers must have valid documents.','Pasiva: Valid documents must be presented by drivers before rides are accepted.']},
+    {
+      title: 'Pasiva: el verbo NO cambia',
+      content: 'Al pasar de activa a pasiva, el verbo de la idea se conserva. Solo cambia quién va de sujeto. Si cambiás el verbo, cambiás el significado.',
+      examples: [
+        { lbl: '❌', text: 'Search a book could be presented by librarians.' },
+        { lbl: '✅', text: 'Books can be searched by members by title, author, or category.' },
+        { lbl: '❌', text: 'Reserve a book online shall be registered by librarians.' },
+        { lbl: '✅', text: 'A book can be reserved online by members.' },
+        { lbl: '❌', text: 'Send automatic reminders should be searched which overdue.' },
+        { lbl: '✅', text: 'Automatic reminders should be sent by the system when a book is overdue.' }
+      ],
+      warn: 'El sujeto de la pasiva es un SUSTANTIVO (books, a book, reminders), nunca un verbo suelto ("Search a book..."). Fórmula: [cosa] + can/shall/should + be + participio (+ by + quién).\nsearch → be searched · reserve → be reserved · send → be sent'
+    },
   ]
 };
 
@@ -1647,7 +1889,7 @@ function renderSRS(t){
       v=>{S.srsAnswer=v;S.srsShown=true;render();});
     stepBox.appendChild(ai.wrap);stepBox.appendChild(ai.btn);stepBox.appendChild(ai.lock);
   } else {
-    if(S.srsAnswer){ stepBox.appendChild(yourAnswer(S.srsAnswer)); stepBox.appendChild(renderCorrection(S.srsAnswer, step.keywords, step.model)); }
+    if(S.srsAnswer){ stepBox.appendChild(yourAnswer(S.srsAnswer)); stepBox.appendChild(renderCorrection(S.srsAnswer, step.keywords, step.model, step)); }
     const fb=el('div','srs-fb');
     fb.innerHTML=`<h4>Respuesta modelo</h4>${step.model.split('\n').map(l=>`<div class="model">${l.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`).join('')}<div class="tip" style="margin-top:8px">💡 ${step.tip}</div>`;
     stepBox.appendChild(fb);
