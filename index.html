@@ -1529,6 +1529,7 @@ function correctAnswer(text, keywords, model, opts={}){
     addErr('El modelo usa voz pasiva con agente y tu respuesta no tiene "by". Revisá: Objeto + was/were + p.p. + by + agente.');
 
   // ── Reglas v4.3 (solo respuestas en inglés, evaluadas por línea) ──
+  const badLines=new Set();   // líneas con error R1–R6: no se muestran en "Estructuras correctas"
   if(isEnglish(text)){
     const MODAL='shall|must|should|can|could|will';
     const R1=new RegExp(String.raw`\b(?:${MODAL})\s+be\s+(?:\w+(?:ed|en)|sent|found|built|made|run|set|written|done|shown|taken|given|kept|held|put|read)\s+(?:a|an|the|that|several|many)\b`,'gi');
@@ -1540,8 +1541,8 @@ function correctAnswer(text, keywords, model, opts={}){
     const R5a=/\b(?:a|the|an)\s+fail\b/gi;
     const R5b=/\ba\s+(?:error|issue|incident|update|endpoint|exception|alert|attempt|action|account|application)\b/gi;
     const R6=/\b(?:system|app|users?|students?|members?|librarians?|drivers?|passengers?)\s+(?:a|an|the)\s+(?:could|should|must|shall|can|will|won't)\b/gi;
-    text.split('\n').forEach(line=>{
-      const each=(re,fn)=>{ re.lastIndex=0; let x; while((x=re.exec(line))) fn(x); };
+    text.split('\n').forEach((line,li)=>{
+      const each=(re,fn)=>{ re.lastIndex=0; let x; while((x=re.exec(line))){ badLines.add(li); fn(x); } };
       each(R1,x=>addErr(`"${snip(x[0])}" → después de una pasiva no va un objeto. Si el sistema hace la acción usá activa ("The system shall detect...") o poné lo que recibe la acción de sujeto ("The client shall be throttled").`));
       each(R2,x=>addErr(`"${snip(x[0])}" → ¿el sistema RECIBE la acción? Si es el sistema quien la hace, usá "The system shall + verbo base" (ej: "The system shall detect...").`));
       // R3: la línea (sin numeración) empieza con un verbo base y usa pasiva
@@ -1552,7 +1553,7 @@ function correctAnswer(text, keywords, model, opts={}){
         let msg=`La oración empieza con un verbo ("${v[1]}"). En pasiva el sujeto es una cosa: "Books can be searched by members".`;
         if(after && !expected.includes(after[1].toLowerCase()))
           msg+=` El verbo de la pasiva ("${after[1]}") no coincide con el de la idea ("${verb}" → "${expected[0]}"). En pasiva el verbo no cambia.`;
-        addErr(msg);
+        badLines.add(li); addErr(msg);
       }
       each(R4,x=>addErr(`"${snip(x[0])}" → "than" se usa para comparar (bigger than). Para unir una idea a un sustantivo usá "that": "a failure that occurred".`));
       each(R5a,x=>addErr(`"${snip(x[0])}" → "fail" es verbo. El sustantivo es "failure": "a failure in the job".`));
@@ -1578,7 +1579,10 @@ function correctAnswer(text, keywords, model, opts={}){
     new RegExp(String.raw`\b(?:has|have)\s+been\s+(?:${ADV}\s+)?(?:${PP})\b(?:\s+by\s+(?:the\s+)?\w+)?`,'gi'),
     new RegExp(String.raw`\b(?:must|shall|should|could|can|will)\s+(?:not\s+)?be\s+(?:${ADV}\s+)?(?:${PP})\b(?:\s+by\s+(?:the\s+)?\w+)?`,'gi'),
     /\bif\b[^,.;:\n]{1,60},\s*[^.\n]{0,40}?\b(?:will|won't)\s+\w+/gi,
-  ].forEach(re=>{ while((m=re.exec(text))){ if(!/\bif\b[^,.;:\n]*\bwill\b/i.test(m[0].split(',')[0]+',')) addGood(m[0]); } });
+  ].forEach(re=>{ while((m=re.exec(text))){
+    if(badLines.has(text.slice(0,m.index).split('\n').length-1)) continue;   // fragmento de una línea con error
+    if(!/\bif\b[^,.;:\n]*\bwill\b/i.test(m[0].split(',')[0]+',')) addGood(m[0]);
+  } });
 
   (keywords||[]).forEach(k=>(kwFound(text,k)?found:missing).push(k));
   return {good, errors, found, missing, notices, info};
