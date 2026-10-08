@@ -5,45 +5,56 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Inglés Técnico II — Study App v2</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#4f8ef7">
+<meta name="theme-color" content="#1c2029">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="apple-touch-icon" href="icon-192.png">
 <script>
 (function(){try{
-  var t=localStorage.getItem('ing2v2_theme'); if(t==='light') document.documentElement.setAttribute('data-theme','light');
+  var t=localStorage.getItem('ing2v2_theme'); t={dark:'oscuro',light:'gris'}[t]||t;
+  if(t==='crema'||t==='gris') document.documentElement.setAttribute('data-theme',t);
+  var w=[0,0.08,0.16,0.24][parseInt(localStorage.getItem('ing2v2_warm'),10)]; if(w) document.documentElement.style.setProperty('--warm-alpha',w);
   var f=parseFloat(localStorage.getItem('ing2v2_fontscale')); if([1,1.12,1.25,1.4].indexOf(f)>-1) document.documentElement.style.setProperty('--fscale',f);
 }catch(e){}})();
 </script>
 <style>
-/* Tema oscuro (por defecto). Todos los pares texto/fondo ≥ 4.5:1 */
-:root {
-  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --border:#2e3350;
-  --accent:#4f8ef7; --green:#22c55e; --red:#f87171; --yellow:#f59e0b;
+/* Temas (ing2v2_theme): oscuro (por defecto) · crema · gris. Todos los pares texto/fondo ≥ 4.5:1 */
+:root{
+  --bg:#1c2029; --surface:#252a35; --surface2:#2d3340; --border:#3a4152;
+  --text:#d9dde5; --text2:#b4bccb; --text3:#98a2b3; --accent:#8ab4f8;
+  --btn-bg:#3b6fd4; --btn-text:#ffffff; --on-green:#1c2029;
+  --ok:#7fc8a0; --ok-bg:#223329; --ko:#e88a8a; --ko-bg:#382426; --warn:#e3b866; --warn-bg:#35301f;
+  --info-bg:#263247;
+  color-scheme:dark;
+}
+html[data-theme="crema"]{
+  --bg:#e9e1cf; --surface:#f1ead9; --surface2:#e4dbc6; --border:#cbbfa6;
+  --text:#33302a; --text2:#52493c; --text3:#6a5f4f; --accent:#2f5f9e;
+  --btn-bg:#2f5f9e; --btn-text:#ffffff; --on-green:#ffffff;
+  --ok:#2f6b45; --ok-bg:#dce8d6; --ko:#9a3b3b; --ko-bg:#efd9d4; --warn:#82550a; --warn-bg:#efe3c2;
+  --info-bg:#dde3e8;
+  color-scheme:light;
+}
+html[data-theme="gris"]{
+  --bg:#dde1e7; --surface:#e8ebf0; --surface2:#d6dbe3; --border:#bcc3cf;
+  --text:#222831; --text2:#434b59; --text3:#555e6d; --accent:#2a5db0;
+  --btn-bg:#2a5db0; --btn-text:#ffffff; --on-green:#ffffff;
+  --ok:#27633f; --ok-bg:#d3e6da; --ko:#9b3434; --ko-bg:#ecd3d3; --warn:#85560a; --warn-bg:#ebdfbd;
+  --info-bg:#d3dcea;
+  color-scheme:light;
+}
+/* Alias: los nombres viejos apuntan a las variables del tema activo */
+:root{
+  --green:var(--ok); --red:var(--ko); --yellow:var(--warn);
+  --accent-fill:var(--btn-bg); --on-accent:var(--btn-text);
+  --ok-text:var(--text); --ko-text:var(--text); --warn-text:var(--text); --warn-strong:var(--text);
   --purple:#7c3aed; --orange:#f97316;
-  --text:#e2e8f0; --text2:#a3adbf; --text3:#8a94a6;
-  --accent-fill:#2563eb; --on-accent:#ffffff; --on-green:#000000;   /* botones rellenos */
-  --ok-bg:#052e16; --ok-text:#86efac;
-  --ko-bg:#2d0a0a; --ko-text:#fca5a5;
-  --warn-bg:#2d1f00; --warn-text:#f59e0b; --warn-strong:#fde68a;
-  --info-bg:#1a2744;
   --mono:'JetBrains Mono','Fira Code','Courier New',monospace;
   --body:'Inter','Segoe UI',system-ui,sans-serif;
   --r:10px; --rs:6px;
-  color-scheme:dark;
 }
-/* Tema claro suave */
-html[data-theme="light"]{
-  --bg:#f4f1ea; --surface:#fffdf8; --surface2:#f8f5ee; --border:#d8d2c4;
-  --accent:#2a63c8; --green:#157c3b; --red:#b91c1c; --yellow:#a16207;
-  --text:#1f2430; --text2:#4a5568; --text3:#5b6475;
-  --accent-fill:#2f6fdd; --on-accent:#ffffff; --on-green:#ffffff;
-  --ok-bg:#effaf2; --ok-text:#14532d;
-  --ko-bg:#fbe9e9; --ko-text:#7f1d1d;
-  --warn-bg:#fbf0d9; --warn-text:#854d0e; --warn-strong:#713f12;
-  --info-bg:#e6eefb;
-  color-scheme:light;
-}
+/* Filtro cálido (ing2v2_warm) */
+#warm{position:fixed;inset:0;pointer-events:none;z-index:9999;mix-blend-mode:multiply;background:rgba(255,150,40,var(--warm-alpha,0))}
 /* Letra ajustable: todo el CSS usa rem */
 html{font-size:calc(16px * var(--fscale, 1))}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -61,6 +72,7 @@ header .sub{font-size:.75rem;color:var(--text2)}
 .rc-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:var(--rs);min-width:40px;height:36px;padding:0 10px;font-size:.875rem;font-weight:700;cursor:pointer;font-family:var(--body)}
 .rc-btn:hover:not(:disabled){border-color:var(--accent)}
 .rc-btn:disabled{opacity:.4;cursor:not-allowed}
+.rc-btn[aria-pressed="true"]{border-color:var(--warn);background:var(--warn-bg)}
 #news{background:var(--info-bg);border-left:3px solid var(--accent);padding:10px 16px;font-size:.75rem;color:var(--text2);line-height:1.6;display:flex;align-items:flex-start;gap:12px}
 #news[hidden]{display:none}
 #news-text{flex:1}
@@ -70,7 +82,7 @@ header .sub{font-size:.75rem;color:var(--text2)}
 main{flex:1;padding:28px 20px;max-width:900px;margin:0 auto;width:100%}
 
 /* BANNER */
-.banner{background:var(--warn-bg);border:1px solid var(--yellow);border-radius:var(--rs);padding:10px 16px;font-size:.75rem;color:var(--warn-text);display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.banner{background:var(--warn-bg);border:1px solid var(--border);border-left:3px solid var(--warn);border-radius:var(--rs);padding:10px 16px;font-size:.75rem;color:var(--text);display:flex;align-items:center;gap:10px;margin-bottom:20px}
 .banner strong{color:var(--warn-strong)}
 /* SRS THEORY */
 .srs-theory{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:14px}
@@ -79,10 +91,10 @@ main{flex:1;padding:28px 20px;max-width:900px;margin:0 auto;width:100%}
 .srs-theory p{font-size:.75rem;color:var(--text2);line-height:1.7;margin-bottom:8px}
 .srs-theory p strong{color:var(--text)}
 .srs-theory .formula{background:var(--surface2);border-left:3px solid var(--green);border-radius:var(--rs);padding:8px 12px;font-family:var(--mono);font-size:.6875rem;color:var(--green);margin:6px 0}
-.srs-theory .warn{background:var(--warn-bg);border:1px solid var(--yellow);border-radius:var(--rs);padding:8px 12px;font-size:.6875rem;color:var(--warn-text);margin:6px 0;white-space:pre-line}
+.srs-theory .warn{background:var(--warn-bg);border:1px solid var(--border);border-left:3px solid var(--warn);border-radius:var(--rs);padding:8px 12px;font-size:.6875rem;color:var(--text);margin:6px 0;white-space:pre-line}
 .srs-theory-title{font-size:1.0625rem;font-weight:800;color:var(--green);margin-bottom:14px;line-height:1.4}
-.srs-theory .kw-table td.ex-ok{color:var(--green);font-weight:400}
-.srs-theory .kw-table td.ex-bad{color:var(--red)}
+.srs-theory .kw-table td.ex-ok{color:var(--text);font-weight:400;box-shadow:inset 3px 0 var(--ok);padding-left:12px}
+.srs-theory .kw-table td.ex-bad{color:var(--text);box-shadow:inset 3px 0 var(--ko);padding-left:12px}
 .srs-theory .table-wrap .kw-table{min-width:0}
 .srs-theory-done{margin-top:16px;background:var(--green);color:var(--on-green);border:none;padding:10px 20px;border-radius:var(--rs);cursor:pointer;font-size:.8125rem;font-weight:700;width:100%}
 /* ACORDEÓN DE TEORÍA */
@@ -137,14 +149,16 @@ main{flex:1;padding:28px 20px;max-width:900px;margin:0 auto;width:100%}
 .formula{background:var(--surface2);border-left:3px solid var(--accent);border-radius:var(--rs);padding:10px 14px;font-family:var(--mono);font-size:.75rem;color:var(--accent);margin:8px 0}
 .ex-box{background:var(--surface2);border-radius:var(--rs);padding:8px 12px;font-size:.75rem;margin:4px 0}
 .ex-lbl{font-size:.5625rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:3px}
-.ex-ok{color:var(--green);font-weight:600}
-.ex-bad{color:var(--red)}
+.ex-ok{color:var(--text);font-weight:600}
+.ex-bad{color:var(--text)}
+.ex-box:has(.ex-ok){border-left:3px solid var(--ok)}
+.ex-box:has(.ex-bad){border-left:3px solid var(--ko)}
 .kw-table{width:100%;border-collapse:collapse;font-size:.75rem;margin:8px 0}
 .kw-table th{background:var(--surface2);color:var(--text2);padding:7px 10px;text-align:left;font-size:.625rem;letter-spacing:.06em;text-transform:uppercase}
 .kw-table td{padding:7px 10px;border-top:1px solid var(--border);color:var(--text2)}
 .kw-table td:first-child{color:var(--accent);font-weight:600}
 .kw-table .kw{color:var(--yellow);font-family:var(--mono);font-size:.6875rem}
-.warn{background:var(--warn-bg);border:1px solid var(--yellow);border-radius:var(--rs);padding:10px 14px;font-size:.75rem;color:var(--warn-text);margin:8px 0;white-space:pre-line}
+.warn{background:var(--warn-bg);border:1px solid var(--border);border-left:3px solid var(--warn);border-radius:var(--rs);padding:10px 14px;font-size:.75rem;color:var(--text);margin:8px 0;white-space:pre-line}
 .theory-done{margin-top:16px;background:var(--accent-fill);color:var(--on-accent);border:none;padding:10px 20px;border-radius:var(--rs);cursor:pointer;font-size:.8125rem;font-weight:700;width:100%}
 .theory-done:hover{opacity:.85}
 
@@ -169,12 +183,14 @@ main{flex:1;padding:28px 20px;max-width:900px;margin:0 auto;width:100%}
 .quiz-opts{display:flex;flex-direction:column;gap:8px}
 .quiz-opt{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 14px;cursor:pointer;font-size:.8125rem;text-align:left;color:var(--text);transition:border-color .1s}
 .quiz-opt:hover:not(:disabled){border-color:var(--accent)}
-.quiz-opt.correct{border-color:var(--green);background:var(--ok-bg);color:var(--green)}
-.quiz-opt.wrong{border-color:var(--red);background:var(--ko-bg);color:var(--red)}
+.quiz-opt.correct{border-color:var(--ok);border-left:3px solid var(--ok);background:var(--ok-bg);color:var(--text)}
+.quiz-opt.wrong{border-color:var(--ko);border-left:3px solid var(--ko);background:var(--ko-bg);color:var(--text)}
+.quiz-opt.correct::before{content:'✓ ';color:var(--ok);font-weight:800}
+.quiz-opt.wrong::before{content:'✗ ';color:var(--ko);font-weight:800}
 .quiz-opt:disabled{cursor:default}
 .quiz-fb{border-radius:var(--rs);padding:10px 14px;font-size:.75rem;line-height:1.6;margin-top:8px}
-.quiz-fb.ok{background:var(--ok-bg);border:1px solid var(--green);color:var(--ok-text)}
-.quiz-fb.ko{background:var(--ko-bg);border:1px solid var(--red);color:var(--ko-text)}
+.quiz-fb.ok{background:var(--ok-bg);border:1px solid var(--border);border-left:3px solid var(--ok);color:var(--text)}
+.quiz-fb.ko{background:var(--ko-bg);border:1px solid var(--border);border-left:3px solid var(--ko);color:var(--text)}
 .quiz-next{margin-top:12px;background:var(--accent-fill);color:var(--on-accent);border:none;padding:9px 20px;border-radius:var(--rs);cursor:pointer;font-size:.8125rem;font-weight:700}
 
 /* PRODUCE */
@@ -187,16 +203,16 @@ main{flex:1;padding:28px 20px;max-width:900px;margin:0 auto;width:100%}
 .btn-reveal{background:var(--surface2);color:var(--text2);border:1px solid var(--border);padding:9px 18px;border-radius:var(--rs);cursor:pointer;font-size:.8125rem}
 .prod-ans{margin-top:10px;background:var(--surface2);border-radius:var(--rs);padding:10px 14px;font-size:.75rem}
 .prod-ans-lbl{font-size:.5625rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:5px}
-.prod-ans-text{color:var(--green);font-weight:600}
+.prod-ans-text{color:var(--text);font-weight:600;border-left:3px solid var(--ok);padding-left:10px}
 .prod-ans-why{color:var(--text2);margin-top:5px;font-size:.6875rem;line-height:1.5}
 .prod-self{display:flex;gap:8px;margin-top:10px}
-.btn-ok{flex:1;background:var(--ok-bg);border:1px solid var(--green);color:var(--green);padding:8px;border-radius:var(--rs);cursor:pointer;font-weight:700;font-size:.75rem}
-.btn-ko{flex:1;background:var(--ko-bg);border:1px solid var(--red);color:var(--red);padding:8px;border-radius:var(--rs);cursor:pointer;font-weight:700;font-size:.75rem}
+.btn-ok{flex:1;background:var(--ok-bg);border:1px solid var(--green);color:var(--text);padding:8px;border-radius:var(--rs);cursor:pointer;font-weight:700;font-size:.75rem}
+.btn-ko{flex:1;background:var(--ko-bg);border:1px solid var(--red);color:var(--text);padding:8px;border-radius:var(--rs);cursor:pointer;font-weight:700;font-size:.75rem}
 
 /* SRS MODE */
 .srs-interview{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:16px;font-size:.8125rem;line-height:1.8;color:var(--text2);max-height:280px;overflow-y:auto}
 .srs-interview strong{color:var(--accent)}
-.srs-interview .client{color:var(--green)}
+.srs-interview .client{color:var(--text)}
 .srs-steps{display:flex;flex-direction:column;gap:12px}
 .srs-step{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px}
 .srs-step-title{font-size:.8125rem;font-weight:700;margin-bottom:8px;color:var(--yellow)}
@@ -204,9 +220,9 @@ main{flex:1;padding:28px 20px;max-width:900px;margin:0 auto;width:100%}
 .srs-inp{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:9px 12px;color:var(--text);font-size:.75rem;font-family:var(--body);resize:vertical;min-height:80px;transition:border-color .15s}
 .srs-inp:focus{outline:none;border-color:var(--green)}
 .srs-check-btn{margin-top:8px;background:var(--green);color:var(--on-green);border:none;padding:8px 18px;border-radius:var(--rs);cursor:pointer;font-size:.75rem;font-weight:700}
-.srs-fb{margin-top:10px;background:var(--surface2);border-radius:var(--rs);padding:10px 14px;font-size:.75rem;line-height:1.6}
+.srs-fb{margin-top:10px;background:var(--surface2);border-left:3px solid var(--ok);border-radius:var(--rs);padding:10px 14px;font-size:.75rem;line-height:1.6}
 .srs-fb h4{font-size:.6875rem;font-weight:700;color:var(--green);margin-bottom:6px;letter-spacing:.06em;text-transform:uppercase}
-.srs-fb .model{color:var(--green);margin-bottom:4px}
+.srs-fb .model{color:var(--text);margin-bottom:4px}
 .srs-fb .tip{color:var(--text2);font-style:italic}
 .srs-nav{display:flex;gap:8px;margin-top:16px}
 .srs-nav-btn{background:var(--accent-fill);color:var(--on-accent);border:none;padding:9px 20px;border-radius:var(--rs);cursor:pointer;font-size:.8125rem;font-weight:700}
@@ -234,16 +250,35 @@ main{flex:1;padding:28px 20px;max-width:900px;margin:0 auto;width:100%}
 .corr-miss .corr-t{color:var(--yellow)}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{font-size:.6875rem;padding:3px 10px;border-radius:99px;border:1px solid;font-family:var(--mono)}
-.chip-ok{color:var(--ok-text);border-color:var(--green);background:var(--ok-bg)}
-.chip-miss{color:var(--warn-text);border-color:var(--yellow);background:var(--warn-bg)}
+.chip-ok{color:var(--text);border-color:var(--ok);background:var(--ok-bg)}
+.chip-miss{color:var(--text);border-color:var(--warn);background:var(--warn-bg)}
 .corr-item{font-size:.75rem;line-height:1.5;padding:6px 10px;border-radius:var(--rs);margin-top:4px}
-.corr-ok .corr-item{background:var(--ok-bg);color:var(--ok-text)}
-.corr-ko .corr-item{background:var(--ko-bg);color:var(--ko-text)}
+.corr-ok .corr-item{background:var(--ok-bg);color:var(--text);border-left:3px solid var(--ok)}
+.corr-ko .corr-item{background:var(--ko-bg);color:var(--text);border-left:3px solid var(--ko)}
 .corr-none{font-size:.6875rem;color:var(--text3);font-style:italic}
 .corr-info .corr-t{color:var(--accent)}
-.corr-item.corr-warn{background:var(--warn-bg);color:var(--warn-text)}
+.corr-item.corr-warn{background:var(--warn-bg);color:var(--text);border-left:3px solid var(--warn)}
 .corr-item.corr-fine{background:var(--surface2);color:var(--text2)}
 .corr-note{font-size:.625rem;color:var(--text3);margin-top:12px;font-style:italic}
+
+/* MODO GUIADO */
+.g-prog{margin-bottom:14px}
+.g-prog-lbl{font-size:.75rem;color:var(--text2);margin-bottom:4px}
+.g-head{font-size:.9375rem;font-weight:700;color:var(--text);line-height:1.45;margin-bottom:12px}
+.g-cause{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--rs);padding:12px 14px;margin-bottom:10px}
+.g-cause p{font-size:.8125rem;color:var(--text);line-height:1.6;margin-bottom:8px}
+.g-cause p.g-es{color:var(--text2)}
+.g-hint{font-size:.75rem;color:var(--text2);line-height:1.55;margin:8px 0 12px}
+.g-trans{margin-top:14px}
+.g-trans-lbl{font-size:.75rem;color:var(--text2);margin-bottom:6px}
+.g-trans .btn-reveal{margin-top:8px}
+.g-sum-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);padding:12px 14px;margin-bottom:10px}
+.g-sum-hd{font-size:.8125rem;font-weight:700;color:var(--text);margin-bottom:8px}
+.g-sum-user,.g-sum-model{font-size:.8125rem;color:var(--text);line-height:1.55;margin-bottom:8px;padding-left:10px}
+.g-sum-user{border-left:3px solid var(--border)}
+.g-sum-model{border-left:3px solid var(--ok)}
+.g-stat{margin-top:8px}
+.g-stat-hd{font-weight:700;margin-bottom:4px}
 
 /* PASOS SRS con saltos de línea + líneas vacías en modelos */
 .srs-step-desc{white-space:pre-line}
@@ -266,7 +301,9 @@ main{flex:1;padding:28px 20px;max-width:900px;margin:0 auto;width:100%}
   .theory-block,.srs-theory,.quiz-q,.produce-q,.srs-interview{padding:16px 14px}
 
   /* Lectura: texto principal 16px */
-  .theory-block p,.srs-theory p,.srs-step-desc,.quiz-qtext,.produce-prompt{font-size:1rem;line-height:1.65}
+  .theory-block p,.srs-theory p,.srs-step-desc,.quiz-qtext,.produce-prompt,.g-cause p,.g-head{font-size:1rem;line-height:1.65}
+  .g-hint,.g-sum-user,.g-sum-model{font-size:.9375rem}
+  .g-prog-lbl,.g-trans-lbl{font-size:.875rem}
   .home-sub,.topic-desc,.srs-interview,.ex-box,.warn,.srs-theory .warn,.your-ans,.corr-item,.quiz-opt{font-size:.9375rem;line-height:1.6}
   .formula,.srs-theory .formula,.banner{font-size:.875rem}
   .topic-name{font-size:1.0625rem}
@@ -310,16 +347,18 @@ main{flex:1;padding:28px 20px;max-width:900px;margin:0 auto;width:100%}
 </style>
 </head>
 <body>
+<div id="warm" aria-hidden="true"></div>
 <div id="app">
   <header>
     <button id="install-btn" type="button" hidden>⬇ Instalar</button>
     <h1>Inglés Técnico II</h1>
-    <span class="sub" id="app-ver">v4.4</span>
+    <span class="sub" id="app-ver">v4.5</span>
     <div id="bc"></div>
     <div id="reader-ctrls">
       <button class="rc-btn" id="font-dec" type="button" aria-label="Achicar letra" title="Achicar letra">A−</button>
       <button class="rc-btn" id="font-inc" type="button" aria-label="Agrandar letra" title="Agrandar letra">A+</button>
-      <button class="rc-btn" id="theme-btn" type="button"></button>
+      <button class="rc-btn" id="theme-btn" type="button">🎨</button>
+      <button class="rc-btn" id="warm-btn" type="button">🔆</button>
     </div>
   </header>
   <div id="news" hidden>
@@ -329,8 +368,8 @@ main{flex:1;padding:28px 20px;max-width:900px;margin:0 auto;width:100%}
   <main id="main"></main>
 </div>
 <script>
-const APP_VERSION = '4.4';
-const APP_NEWS = '🆕 Novedades v4.4: Letra más grande y ajustable (A− / A+) · Tema claro opcional · Tablas legibles en el celular · Secciones de teoría colapsables';
+const APP_VERSION = '4.5';
+const APP_NEWS = '🆕 Novedades v4.5: Colores más suaves (3 temas) y filtro cálido · Modo guiado para NimbusCloud (un incidente a la vez) · Corrección: participios en pasivas con "and", "of/or" y ortografía de términos técnicos · Resumen de tus errores más frecuentes';
 
 // ── Botón "Instalar" (solo en navegador; Chrome no dispara el evento si ya está instalada) ──
 let installPrompt = null;
@@ -353,7 +392,7 @@ window.addEventListener('appinstalled', () => { installPrompt = null; installBtn
 // ── Versión + aviso de novedades (ing2v2_version_seen) ──
 document.getElementById('app-ver').textContent = 'v' + APP_VERSION;
 
-// ── Lectura: tamaño de letra (ing2v2_fontscale) y tema (ing2v2_theme) ──
+// ── Lectura: tamaño de letra (ing2v2_fontscale), tema (ing2v2_theme) y filtro cálido (ing2v2_warm) ──
 const FONT_SCALES = [1, 1.12, 1.25, 1.4];
 const rootEl = document.documentElement;
 const fontDec = document.getElementById('font-dec'), fontInc = document.getElementById('font-inc'), themeBtn = document.getElementById('theme-btn');
@@ -368,17 +407,38 @@ function applyFont(save){
 fontDec.onclick = () => { if (fontIdx > 0) { fontIdx--; applyFont(true); } };
 fontInc.onclick = () => { if (fontIdx < FONT_SCALES.length - 1) { fontIdx++; applyFont(true); } };
 applyFont(false);
+const THEMES = ['oscuro', 'crema', 'gris'];
+const THEME_META = {oscuro:'#1c2029', crema:'#e9e1cf', gris:'#dde1e7'};
 function applyTheme(theme, save){
-  if (theme === 'light') rootEl.setAttribute('data-theme', 'light'); else rootEl.removeAttribute('data-theme');
-  themeBtn.textContent = theme === 'light' ? '🌙' : '☀️';
-  const lbl = theme === 'light' ? 'Cambiar a tema oscuro' : 'Cambiar a tema claro';
+  if (!THEMES.includes(theme)) theme = 'oscuro';
+  if (theme === 'oscuro') rootEl.removeAttribute('data-theme'); else rootEl.setAttribute('data-theme', theme);
+  const next = THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length];
+  const lbl = `Tema: ${theme} (tocá para pasar a ${next})`;
   themeBtn.title = lbl; themeBtn.setAttribute('aria-label', lbl);
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.content = theme === 'light' ? '#f4f1ea' : '#4f8ef7';
+  if (meta) meta.content = THEME_META[theme];
   if (save) { try { localStorage.setItem('ing2v2_theme', theme); } catch(e) {} }
 }
-themeBtn.onclick = () => applyTheme(rootEl.getAttribute('data-theme') === 'light' ? 'dark' : 'light', true);
-applyTheme(rootEl.getAttribute('data-theme') === 'light' ? 'light' : 'dark', false);
+const currentTheme = () => rootEl.getAttribute('data-theme') || 'oscuro';
+themeBtn.onclick = () => applyTheme(THEMES[(THEMES.indexOf(currentTheme()) + 1) % THEMES.length], true);
+applyTheme(currentTheme(), false);
+// guardar la migración de valores viejos (dark/light → oscuro/gris)
+try { const old = localStorage.getItem('ing2v2_theme'); if (old === 'dark' || old === 'light') localStorage.setItem('ing2v2_theme', currentTheme()); } catch(e) {}
+
+// ── Filtro cálido (ing2v2_warm): apagado, bajo, medio, alto ──
+const WARM_LEVELS = [0, 0.08, 0.16, 0.24], WARM_NAMES = ['apagado', 'bajo', 'medio', 'alto'];
+const warmBtn = document.getElementById('warm-btn');
+let warmIdx = 0;
+try { warmIdx = Math.min(3, Math.max(0, parseInt(localStorage.getItem('ing2v2_warm'), 10) || 0)); } catch(e) {}
+function applyWarm(save){
+  rootEl.style.setProperty('--warm-alpha', WARM_LEVELS[warmIdx]);
+  const lbl = `Filtro cálido: ${WARM_NAMES[warmIdx]} (tocá para cambiar)`;
+  warmBtn.title = lbl; warmBtn.setAttribute('aria-label', lbl);
+  warmBtn.setAttribute('aria-pressed', String(warmIdx > 0));
+  if (save) { try { localStorage.setItem('ing2v2_warm', String(warmIdx)); } catch(e) {} }
+}
+warmBtn.onclick = () => { warmIdx = (warmIdx + 1) % WARM_LEVELS.length; applyWarm(true); };
+applyWarm(false);
 (function showNews(){
   let seen = null;
   try { seen = localStorage.getItem('ing2v2_version_seen'); } catch(e) {}
@@ -1298,6 +1358,113 @@ const TROUBLESHOOTING_TOPICS = [
   },
 ];
 
+// ── MODO GUIADO NimbusCloud: un incidente, una pregunta (5 × 3 = 15 pantallas) ──
+const NIMBUS_GUIDED = [
+  {
+    title: "Error 429: Too Many Requests",
+    cause: "A single client exceeded the rate limit by sending more than 100 API calls per minute, well above the threshold allowed under the current subscription tier.",
+    causeEs: "Un cliente superó el límite de solicitudes al enviar más de 100 llamadas a la API por minuto, muy por encima del umbral permitido en su nivel de suscripción actual.",
+    questions: [
+      { goal: "Contener", template: "The [cosa] shall be [participio] [cómo / cuándo].",
+        hint: "Verbo: throttle (regular el flujo). Cosa que recibe la acción: el cliente afectado (the affected client). Cuándo: immediately.",
+        model: "The affected client shall be throttled immediately.",
+        es: "Se regulará de inmediato el flujo de solicitudes del cliente afectado." },
+      { goal: "Resolver", template: "The [cosa] shall be [participio] if [condición].",
+        hint: "Verbo: suspend. Cosa: la clave de acceso a la API (the API key). Condición: el límite sigue siendo superado (continues to be exceeded). Podés agregar temporarily.",
+        model: "The API key shall be temporarily suspended if the limit continues to be exceeded.",
+        es: "La clave de API será suspendida temporalmente si el límite continúa siendo superado." },
+      { goal: "Prevenir", template: "The [cosa] shall be [participio] of/to [qué].",
+        hint: "Verbo: inform (se construye con OF). Cosa: the client. Qué se le informa: la política de límite de solicitudes (the rate limit policy).",
+        model: "The client shall be informed of the rate limit policy.",
+        es: "Se informará al cliente sobre la política de límite de solicitudes." }
+    ]
+  },
+  {
+    title: "Stale Cache Read",
+    cause: "The cache invalidation job failed silently after a deployment, so users kept receiving outdated inventory data even though the underlying database had already been updated.",
+    causeEs: "El proceso de invalidación de caché falló sin generar alertas tras un despliegue, por lo que los usuarios siguieron recibiendo datos de inventario desactualizados aunque la base de datos ya había sido actualizada.",
+    questions: [
+      { goal: "Contener", template: "The [cosa] shall be [adverbio] [participio 1] and [participio 2].",
+        hint: "Verbos: invalidate y flush, unidos con and (los DOS en participio). Cosa: the cache. Cómo: manually.",
+        model: "The cache shall be manually invalidated and flushed.",
+        es: "La caché será invalidada y vaciada manualmente." },
+      { goal: "Resolver", template: "The [cosa] shall be [participio 1] and [participio 2].",
+        hint: "Verbos: review y fix, en participio. Cosa: the cache invalidation job.",
+        model: "The cache invalidation job shall be reviewed and fixed.",
+        es: "El proceso de invalidación de caché será revisado y corregido." },
+      { goal: "Prevenir", template: "[Mecanismo] shall be [participio] to [verbo base] [qué].",
+        hint: "Verbo: implement. Cosa: un mecanismo de respaldo (a fallback mechanism). Para qué: to detect silent failures.",
+        model: "A fallback mechanism shall be implemented to detect silent failures.",
+        es: "Se implementará un mecanismo de respaldo para detectar fallos silenciosos." }
+    ]
+  },
+  {
+    title: "Deadlock Detected (Error 1213)",
+    cause: "Two concurrent transactions attempted to update the same set of rows in reverse order, each holding a lock the other transaction needed to proceed.",
+    causeEs: "Dos transacciones concurrentes intentaron actualizar el mismo conjunto de filas en orden inverso, cada una reteniendo un bloqueo que la otra necesitaba para continuar.",
+    questions: [
+      { goal: "Contener", template: "[Cosa] shall be [adverbio] [participio].",
+        hint: "Verbo: roll back (revertir); participio: rolled back. Cosa: both transactions. Cómo: automatically.",
+        model: "Both transactions shall be automatically rolled back.",
+        es: "Ambas transacciones serán revertidas automáticamente." },
+      { goal: "Resolver", template: "The system shall [verbo base] [cómo].",
+        hint: "Acá el sistema HACE la acción (activa, sin be). Verbo: retry. Cómo: using exponential backoff.",
+        model: "The system shall retry using exponential backoff.",
+        es: "El sistema reintentará la operación con espera exponencial." },
+      { goal: "Prevenir", template: "The [cosa] shall be [participio] to prevent [problema].",
+        hint: "Verbo: standardize. Cosa: the database access order. Para qué: to prevent future deadlocks.",
+        model: "The database access order shall be standardized to prevent future deadlocks.",
+        es: "El orden de acceso a la base de datos será estandarizado para evitar futuros interbloqueos." }
+    ]
+  },
+  {
+    title: "Webhook Delivery Failure",
+    cause: "The receiving endpoint returned a 500 Internal Server Error three times in a row, most likely because the partner's server was undergoing unscheduled maintenance.",
+    causeEs: "El endpoint receptor devolvió un Error 500 de servidor interno tres veces consecutivas, probablemente porque el servidor del socio estaba en mantenimiento no programado.",
+    questions: [
+      { goal: "Contener", template: "The system shall [verbo base] [qué] [cómo].",
+        hint: "Activa. Verbo: retry. Qué: delivery. Cómo: using exponential backoff up to five times.",
+        model: "The system shall retry delivery using exponential backoff up to five times.",
+        es: "El sistema reintentará la entrega con espera exponencial hasta cinco veces." },
+      { goal: "Resolver", template: "The [cosa] shall be [participio] to [lugar] if [condición].",
+        hint: "Verbo: move. Cosa: the payload. Adónde: to a dead-letter queue. Condición: if all attempts fail.",
+        model: "The payload shall be moved to a dead-letter queue if all attempts fail.",
+        es: "El payload será enviado a la cola de mensajes fallidos si todos los intentos fallan." },
+      { goal: "Prevenir", template: "The [cosa 1] shall be [participio 1] and the [cosa 2] shall be [participio 2].",
+        hint: "Verbos: notify y contact, cada uno en participio. Cosas: the on-call engineer y the partner's team.",
+        model: "The on-call engineer shall be notified and the partner's team shall be contacted.",
+        es: "Se notificará al ingeniero de guardia y se contactará al equipo del socio." }
+    ]
+  },
+  {
+    title: "Data Drift in ML Model",
+    cause: "The statistical distribution of the incoming production data diverged significantly from the distribution the model had originally been trained on, degrading prediction accuracy over time.",
+    causeEs: "La distribución estadística de los datos de producción entrantes se alejó significativamente de la distribución con la que el modelo fue entrenado, deteriorando la precisión de las predicciones con el tiempo.",
+    questions: [
+      { goal: "Contener", template: "The [cosa] shall be [participio] [cuándo].",
+        hint: "Verbo: notify. Cosa: the on-call engineer. Cuándo: immediately.",
+        model: "The on-call engineer shall be notified immediately.",
+        es: "Se notificará de inmediato al ingeniero de guardia." },
+      { goal: "Resolver", template: "The [cosa] shall be [participio] using [qué].",
+        hint: "Verbo: retrain. Cosa: the model. Con qué: using recent production data.",
+        model: "The model shall be retrained using recent production data.",
+        es: "El modelo será reentrenado con datos de producción recientes." },
+      { goal: "Prevenir", template: "[Mecanismo] shall be [participio].",
+        hint: "Verbo: implement. Cosa: monitoreo automático de desviación de datos (automated data drift monitoring).",
+        model: "Automated data drift monitoring shall be implemented.",
+        es: "Se implementará un monitoreo automático de desviación de datos." }
+    ]
+  }
+];
+// keywords del modo guiado (mismo orden: incidente × pregunta) — el verbo de acción y su complemento clave
+const GUIDED_KEYWORDS = [
+  ['throttled','immediately'], ['suspended','if'], ['informed of','rate limit'],
+  ['invalidated','flushed'], ['reviewed','fixed'], ['implemented','detect'],
+  ['rolled back','automatically'], ['retry','exponential backoff'], ['standardized','prevent'],
+  ['retry','exponential backoff'], ['moved','dead-letter queue'], ['notified','contacted'],
+  ['notified','immediately'], ['retrained','production data'], ['implemented','monitoring'],
+];
+
 // ── KEYWORDS OBLIGATORIAS (corrección automática) ────────────────────
 // produce: una lista por ejercicio (mismo orden). SRS: por id de paso.
 // Sintaxis: "a|b" = alternativas · "allow...to" = "allow" y después "to" (misma frase).
@@ -1476,6 +1643,40 @@ function participle(v){
   if(/[^aeiou]y$/.test(v)) return [v.slice(0,-1)+'ied'];
   return [v+'ed'];
 }
+// R9: verbos en forma base que no deben ir donde corresponde un participio
+const R9_BASEVERBS='throttle|suspend|notify|retry|invalidate|flush|move|retrain|review|implement|standardize|escalate|contact|detect|alert|inform|update|fix|deploy|monitor|report|restart|block|store|protect|send|register|reserve|search';
+// R11: términos técnicos cuya ortografía se revisa (con sus formas flexionadas)
+const TECH_TERMS=['throttle','invalidate','flush','retry','suspend','notify','deadlock','rollback','backoff','exponential','fallback','escalate','retrain','standardize','implement','authorization','authentication','vulnerability','encryption','scalability','containerization','microservices','repository','deployment','endpoint','payload','webhook'];
+// palabras reales a distancia 1 de un término técnico (no son errores de ortografía)
+const R11_ALLOW=['callback','callbacks','restrain','restrains','restrained','restraining','escalator','escalators'];
+let TECH_FORMS=null, APP_VOCAB=null;
+function techForms(){
+  if(TECH_FORMS) return TECH_FORMS;
+  TECH_FORMS=new Set();
+  TECH_TERMS.forEach(t=>{
+    [t,t+'s',t+'es',t+'d',t+'ed',t+'ing',t+'ly'].forEach(f=>TECH_FORMS.add(f));
+    if(/y$/.test(t)){ TECH_FORMS.add(t.slice(0,-1)+'ies'); TECH_FORMS.add(t.slice(0,-1)+'ied'); }
+    if(/e$/.test(t)) TECH_FORMS.add(t.slice(0,-1)+'ing');   // throttle → throttling
+  });
+  return TECH_FORMS;
+}
+function appVocab(){
+  if(APP_VOCAB) return APP_VOCAB;
+  const txt=JSON.stringify([GRAMMAR_TOPICS,SRS_TOPICS,TROUBLESHOOTING_TOPICS,SRS_THEORY,NIMBUS_GUIDED]).toLowerCase();
+  APP_VOCAB=new Set(txt.match(/[a-z]+/g));
+  R11_ALLOW.forEach(w=>APP_VOCAB.add(w));
+  return APP_VOCAB;
+}
+function editDistance1(a,b){   // true si la distancia de edición es exactamente 1
+  if(a===b||Math.abs(a.length-b.length)>1) return false;
+  let i=0,j=0,diff=0;
+  while(i<a.length&&j<b.length){
+    if(a[i]===b[j]){i++;j++;continue;}
+    if(++diff>1) return false;
+    if(a.length>b.length) i++; else if(b.length>a.length) j++; else {i++;j++;}
+  }
+  return diff+(a.length-i)+(b.length-j)===1;
+}
 function isEnglish(t){
   const c=re=>(t.match(re)||[]).length;
   return c(/\b(?:the|and|of|to|is|are|was|were|be|shall|will|with|for|by)\b/gi) >= c(/\b(?:el|la|los|las|que|del|por|para|una|es|son|fue|ser[aá]|con|se)\b/gi);
@@ -1541,6 +1742,10 @@ function correctAnswer(text, keywords, model, opts={}){
     const R5a=/\b(?:a|the|an)\s+fail\b/gi;
     const R5b=/\ba\s+(?:error|issue|incident|update|endpoint|exception|alert|attempt|action|account|application)\b/gi;
     const R6=/\b(?:system|app|users?|students?|members?|librarians?|drivers?|passengers?)\s+(?:a|an|the)\s+(?:could|should|must|shall|can|will|won't)\b/gi;
+    const R9a=new RegExp(String.raw`\b(?:${MODAL})\s+be\s+(?:\w+ly\s+)?(${R9_BASEVERBS})\b`,'gi');
+    const R9b=new RegExp(String.raw`\bbe\s+(?:\w+ly\s+)?\w+(?:ed|en)\s+and\s+(?:\w+ly\s+)?(${R9_BASEVERBS})\b`,'gi');
+    // "or" + determinante/pronombre: así "notified or contacted" (válido) no se marca
+    const R10=/\b(?:informed|notified|aware|made\s+up|consists?)\s+or\s+(?=(?:the|a|an|this|that|these|those|all|any|its|their|our|his|her|it|them|my|your)\b)/gi;
     text.split('\n').forEach((line,li)=>{
       const each=(re,fn)=>{ re.lastIndex=0; let x; while((x=re.exec(line))){ badLines.add(li); fn(x); } };
       each(R1,x=>addErr(`"${snip(x[0])}" → después de una pasiva no va un objeto. Si el sistema hace la acción usá activa ("The system shall detect...") o poné lo que recibe la acción de sujeto ("The client shall be throttled").`));
@@ -1559,6 +1764,18 @@ function correctAnswer(text, keywords, model, opts={}){
       each(R5a,x=>addErr(`"${snip(x[0])}" → "fail" es verbo. El sustantivo es "failure": "a failure in the job".`));
       each(R5b,x=>addErr(`"${snip(x[0])}" → antes de vocal se usa "an": "an error".`));
       each(R6,x=>addErr(`"${snip(x[0])}" → sobra una palabra entre el sujeto y el modal: "The system a could" → "The system could".`));
+      // R9: participio faltante en pasiva — (a) modal + be + base · (b) "be + p.p. and + base"
+      const r9=(x,verb)=>addErr(`"${snip(x[0])}" → en una pasiva (shall be …) el verbo va en participio, y si unís dos verbos con "and", los dos: "invalidated and flushed". Falta el participio de "${verb}" (→ "${participle(verb.toLowerCase())[0]}").`);
+      each(R9a,x=>r9(x,x[1]));
+      each(R9b,x=>r9(x,x[1]));
+      // R10: "or" en lugar de "of"
+      each(R10,x=>addErr(`"${snip(x[0])}" → ¿quisiste escribir "of"? (inform someone OF something).`));
+      // R11: ortografía de términos técnicos (palabras de 6+ letras desconocidas a distancia 1)
+      (line.match(/[A-Za-z]+/g)||[]).forEach(w=>{
+        const lw=w.toLowerCase();
+        if(lw.length<6||techForms().has(lw)||appVocab().has(lw)) return;
+        for(const f of techForms()){ if(editDistance1(lw,f)){ badLines.add(li); addErr(`"${w}" → ¿quisiste escribir "${f}"? Revisá la ortografía.`); break; } }
+      });
     });
   }
 
@@ -1585,7 +1802,22 @@ function correctAnswer(text, keywords, model, opts={}){
   } });
 
   (keywords||[]).forEach(k=>(kwFound(text,k)?found:missing).push(k));
-  return {good, errors, found, missing, notices, info};
+  const hits=errors.map(ruleOf).concat(notices.length?['R7']:[]);
+  return {good, errors, found, missing, notices, info, hits};
+}
+const RULE_NAMES={
+  R1:'Objeto después de la pasiva', R2:'"The system shall be + verbo"', R3:'Oración que empieza con un verbo (pasiva)',
+  R4:'"than" en lugar de "that"', R5:'fail/failure y a/an', R6:'Palabra sobrante antes del modal',
+  R7:'Falta un verbo de acción', R9:'Participio faltante en pasiva', R10:'"or" en lugar de "of"', R11:'Ortografía de términos técnicos',
+  'shall-actor':'"shall" + actor sin "allow … to"', 'allow-to':'"allow" sin "to"', 'modal-base':'Verbo conjugado después de un modal',
+  'past':'is/are en contexto de pasado', 'if-will':'"will" en la cláusula IF', 'no-by':'Falta "by" antes del agente', 'model-by':'Pasiva sin "by + agente"', other:'Otro',
+};
+function ruleOf(msg){
+  const t=[['después de una pasiva no va un objeto','R1'],['el sistema RECIBE','R2'],['La oración empieza con un verbo','R3'],['"than" se usa','R4'],
+    ['"fail" es verbo','R5'],['antes de vocal','R5'],['sobra una palabra','R6'],['el verbo va en participio','R9'],['¿quisiste escribir "of"?','R10'],
+    ['Revisá la ortografía','R11'],['Falta "allow … to"','shall-actor'],['→ falta "to"','allow-to'],['el verbo va en forma base','modal-base'],
+    ['el contexto es pasado','past'],['cláusula IF','if-will'],['falta "by" antes del agente','no-by'],['El modelo usa voz pasiva con agente','model-by']];
+  const hit=t.find(([k])=>msg.includes(k)); return hit?hit[1]:'other';
 }
 
 function renderCorrection(text, keywords, model, opts={}){
@@ -1895,7 +2127,7 @@ function renderSRS(t){
 
   // Tabs: Teoría | Resolver
   const tabs=el('div','mode-tabs');
-  [['srs-theory',t.customTheory?'📖 Teoría':'📖 Teoría SRS'],['srs-practice','🎯 Resolver']].forEach(([id,lbl])=>{
+  [['srs-theory',t.customTheory?'📖 Teoría':'📖 Teoría SRS'],['srs-practice','🎯 Resolver'],...(t.id==='srs-nimbuscloud'?[['srs-guided','🧭 Guiado']]:[])].forEach(([id,lbl])=>{
     const btn=el('button','mode-tab');setTabLabel(btn,lbl);
     if(S.mode===id) btn.classList.add('active');
     btn.onclick=()=>{
@@ -1906,6 +2138,9 @@ function renderSRS(t){
     tabs.appendChild(btn);
   });
   div.appendChild(tabs);
+
+  // Modo guiado (solo NimbusCloud)
+  if(S.mode==='srs-guided'){ div.appendChild(renderGuided(t)); return div; }
 
   // Theory tab
   if(S.mode==='srs-theory'){
@@ -2014,6 +2249,119 @@ function renderSRS(t){
   }
 
   div.appendChild(stepBox);return div;
+}
+
+// ── MODO GUIADO (srs-nimbuscloud) ───────────────────────────────────
+const GUIDED_KEY='ing2v2_guided_nimbus', STATS_KEY='ing2v2_error_stats', GUIDED_TOTAL=15;
+function guidedState(){
+  let st=null; try{ st=JSON.parse(localStorage.getItem(GUIDED_KEY)); }catch(e){}
+  st=st||{};
+  return {idx:st.idx||0, drafts:st.drafts||[], answers:st.answers||[], reviewed:st.reviewed||[],
+          esDrafts:st.esDrafts||[], esShown:st.esShown||[], causeEs:st.causeEs||[]};
+}
+function saveGuided(g){ try{ localStorage.setItem(GUIDED_KEY, JSON.stringify(g)); }catch(e){} }
+function guidedItem(i){ const inc=NIMBUS_GUIDED[Math.floor(i/3)]; return {inc, n:Math.floor(i/3)+1, m:i%3+1, q:inc.questions[i%3]}; }
+function guidedOpts(){ const a=KEYWORDS['srs-nimbuscloud'].actions; return {actionVerbs:a.actionVerbs}; }
+function errorStats(){ try{ return JSON.parse(localStorage.getItem(STATS_KEY))||{}; }catch(e){ return {}; } }
+function bumpStats(r){   // acumula cuántas veces se disparó cada regla (ing2v2_error_stats)
+  const st=errorStats();
+  r.hits.forEach((id,k)=>{
+    const e=st[id]||{count:0,example:''};
+    e.count++; e.example=k<r.errors.length?r.errors[k]:(r.notices[0]||e.example);
+    st[id]=e;
+  });
+  try{ localStorage.setItem(STATS_KEY, JSON.stringify(st)); }catch(e){}
+}
+
+function renderGuided(t){
+  const g=guidedState();
+  const wrap=el('div','guided');
+  const done=g.reviewed.filter(Boolean).length;
+  const prog=el('div','g-prog');
+  prog.innerHTML=`<div class="g-prog-lbl">Progreso: ${done}/${GUIDED_TOTAL} revisadas</div><div class="prog-bg"><div class="prog-fill fill-green" style="width:${done/GUIDED_TOTAL*100}%"></div></div>`;
+  wrap.appendChild(prog);
+  if(g.idx>=GUIDED_TOTAL){ wrap.appendChild(renderGuidedSummary(g)); return wrap; }
+
+  const {inc,n,m,q}=guidedItem(g.idx);
+  const head=el('div','g-head');head.textContent=`Incidente ${n}/5 · ${inc.title} · Pregunta ${m}/3 — ${q.goal}`;wrap.appendChild(head);
+
+  // causa raíz + traducción
+  const cause=el('div','g-cause');
+  const cl=el('div','prod-ans-lbl');cl.textContent='Root Cause';cause.appendChild(cl);
+  const cp=el('p');cp.textContent=inc.cause;cause.appendChild(cp);
+  const ci=n-1;
+  if(g.causeEs[ci]){const es=el('p','g-es');es.textContent=inc.causeEs;cause.appendChild(es);}
+  const cb=el('button','acc-toggle');cb.type='button';cb.textContent=g.causeEs[ci]?'Ocultar español':'Ver en español';
+  cb.onclick=()=>{g.causeEs[ci]=!g.causeEs[ci];saveGuided(g);render();};
+  cause.appendChild(cb);wrap.appendChild(cause);
+
+  // plantilla + pista
+  const tpl=el('div','formula');tpl.textContent=q.template;wrap.appendChild(tpl);
+  const hint=el('div','g-hint');hint.textContent='💡 '+q.hint;wrap.appendChild(hint);
+
+  const box=el('div','srs-step');
+  if(!g.reviewed[g.idx]){
+    const ai=answerInput('srs-inp', g.drafts[g.idx], v=>{g.drafts[g.idx]=v;saveGuided(g);}, 'srs-check-btn', 'Revisar',
+      v=>{
+        g.answers[g.idx]=v; g.reviewed[g.idx]=true;
+        bumpStats(correctAnswer(v, GUIDED_KEYWORDS[g.idx], q.model, guidedOpts()));
+        saveGuided(g); render();
+      });
+    box.appendChild(ai.wrap);box.appendChild(ai.btn);box.appendChild(ai.lock);
+  } else {
+    const ans=g.answers[g.idx]||'';
+    box.appendChild(yourAnswer(ans));
+    box.appendChild(renderCorrection(ans, GUIDED_KEYWORDS[g.idx], q.model, guidedOpts()));
+    const fb=el('div','srs-fb');fb.innerHTML='<h4>Respuesta modelo</h4>';
+    const md=el('div','model');md.textContent=q.model;fb.appendChild(md);box.appendChild(fb);
+
+    // traducción opcional
+    const tr=el('div','g-trans');
+    const tl=el('div','g-trans-lbl');tl.textContent='Opcional: traducí esta oración al español';tr.appendChild(tl);
+    const ta=el('textarea','srs-inp');ta.placeholder='Tu traducción...';ta.value=g.esDrafts[g.idx]||'';
+    ta.oninput=()=>{g.esDrafts[g.idx]=ta.value;saveGuided(g);};tr.appendChild(ta);
+    if(g.esShown[g.idx]){const es=el('div','srs-fb');es.innerHTML='<h4>Traducción modelo</h4>';const d=el('div','model');d.textContent=q.es;es.appendChild(d);tr.appendChild(es);}
+    else{const eb=el('button','btn-reveal');eb.type='button';eb.textContent='Ver traducción modelo';eb.onclick=()=>{g.esShown[g.idx]=true;saveGuided(g);render();};tr.appendChild(eb);}
+    box.appendChild(tr);
+
+    const nav=el('div','srs-nav');
+    const nx=el('button','srs-nav-btn');nx.type='button';nx.textContent=g.idx+1<GUIDED_TOTAL?'Siguiente →':'Ver resumen ✓';
+    nx.onclick=()=>{g.idx++;saveGuided(g);render();window.scrollTo(0,0);};
+    nav.appendChild(nx);box.appendChild(nav);
+  }
+  wrap.appendChild(box);
+  return wrap;
+}
+
+function renderGuidedSummary(g){
+  const div=el('div','g-summary');
+  const h=el('div','srs-theory-title');h.textContent='Resumen del modo guiado';div.appendChild(h);
+  for(let i=0;i<GUIDED_TOTAL;i++){
+    const {inc,n,m,q}=guidedItem(i);
+    const it=el('div','g-sum-item');
+    const hd=el('div','g-sum-hd');hd.textContent=`Incidente ${n} · ${inc.title} — ${m}. ${q.goal}`;it.appendChild(hd);
+    const ul=el('div','prod-ans-lbl');ul.textContent='Tu respuesta';it.appendChild(ul);
+    const ua=el('div','g-sum-user');ua.textContent=g.answers[i]||'— (sin responder)';it.appendChild(ua);
+    const ml=el('div','prod-ans-lbl');ml.textContent='Modelo';it.appendChild(ml);
+    const mo=el('div','g-sum-model');mo.textContent=q.model;it.appendChild(mo);
+    div.appendChild(it);
+  }
+  const sb=el('div','srs-theory');
+  sb.innerHTML='<h2>Tus errores más frecuentes</h2>';
+  const top=Object.entries(errorStats()).sort((a,b)=>b[1].count-a[1].count).slice(0,3);
+  if(!top.length){const p=el('p');p.textContent='No se registraron errores en el modo guiado. ¡Muy bien!';sb.appendChild(p);}
+  top.forEach(([id,e],k)=>{
+    const it=el('div','corr-item corr-warn g-stat');
+    const t=el('div','g-stat-hd');t.textContent=`${k+1}. ${RULE_NAMES[id]||id} — ${e.count} ${e.count===1?'vez':'veces'}`;it.appendChild(t);
+    const ex=el('div');ex.textContent=e.example;it.appendChild(ex);
+    sb.appendChild(it);
+  });
+  const note=el('div','corr-note');note.textContent='Contadores acumulados de todas tus pasadas por el modo guiado.';sb.appendChild(note);
+  div.appendChild(sb);
+  const rb=el('button','results-btn');rb.type='button';rb.textContent='↺ Reiniciar modo guiado';
+  rb.onclick=()=>{try{localStorage.removeItem(GUIDED_KEY);}catch(e){}render();window.scrollTo(0,0);};
+  div.appendChild(rb);
+  return div;
 }
 
 // ── RESULTS ─────────────────────────────────────────────────────────
