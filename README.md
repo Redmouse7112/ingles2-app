@@ -31,3 +31,6 @@ on Android from Chrome.
 
 ---
 *Part of a larger personal study and development toolkit built throughout 2026.*
+
+## Licencia
+Este proyecto tiene una licencia propietaria de código visible: podés usar la app y leer el código, pero no copiarlo, redistribuirlo ni usarlo con fines comerciales sin autorización. Ver [LICENSE](LICENSE).
