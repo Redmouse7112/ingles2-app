@@ -55,6 +55,34 @@ html[data-theme="gris"]{
 }
 /* Filtro cálido (ing2v2_warm) */
 #warm{position:fixed;inset:0;pointer-events:none;z-index:9999;mix-blend-mode:multiply;background:rgba(255,150,40,var(--warm-alpha,0))}
+/* SPLASH (carga en frío; el filtro cálido queda por encima) */
+#splash{position:fixed;inset:0;z-index:9000;background:var(--bg);color:var(--text);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 16px;text-align:center;cursor:pointer;overflow-y:auto;animation:spIn .5s ease-out both;transition:opacity .4s ease}
+#splash.out{opacity:0}
+#splash img{width:6rem;height:6rem;border-radius:22%;margin-bottom:1.25rem;box-shadow:0 4px 18px rgba(0,0,0,.25)}
+.sp-title{font-size:1.75rem;font-weight:800;line-height:1.2;color:var(--text)}
+.sp-sub{font-size:.9375rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text2);margin-top:4px}
+.sp-author{font-size:.9375rem;color:var(--text);margin-top:1.75rem;line-height:1.5}
+.sp-legal{font-size:.75rem;color:var(--text2);margin-top:.5rem;line-height:1.6;max-width:22rem}
+.sp-skip{font-size:.75rem;color:var(--text3);margin-top:2rem}
+@keyframes spIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){#splash{animation:none;transition:none}}
+/* MODAL DE LICENCIA (bloquea la app hasta aceptar) */
+#lic-modal{position:fixed;inset:0;z-index:9500;background:var(--bg);display:flex;justify-content:center;overflow-y:auto;padding:24px 16px}
+.lic-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);max-width:560px;width:100%;padding:22px 20px;margin:auto 0;height:max-content}
+#lic-title{font-size:1.375rem;font-weight:800;color:var(--text);margin-bottom:10px;outline:none}
+#lic-title:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:4px}
+.lic-intro{font-size:.9375rem;color:var(--text2);margin-bottom:12px;line-height:1.55}
+#lic-list{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+#lic-list li{font-size:.9375rem;line-height:1.55;color:var(--text);padding-left:12px;border-left:3px solid var(--accent)}
+.lic-link{display:inline-block;font-size:.9375rem;color:var(--accent);margin-bottom:16px;padding:4px 0}
+.lic-check{display:flex;gap:10px;align-items:flex-start;font-size:.9375rem;line-height:1.5;color:var(--text);cursor:pointer;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);min-height:48px}
+.lic-check input{width:1.25rem;height:1.25rem;margin-top:.15rem;accent-color:var(--btn-bg);flex:none;cursor:pointer}
+.lic-msg:not(:empty){font-size:.875rem;color:var(--text);background:var(--ko-bg);border-left:3px solid var(--ko);padding:8px 12px;border-radius:var(--rs);margin-top:10px}
+.lic-actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.lic-btn{flex:1 1 160px;min-height:48px;background:var(--btn-bg);color:var(--btn-text);border:none;border-radius:var(--rs);font-size:.9375rem;font-weight:700;cursor:pointer;font-family:var(--body);padding:10px 16px}
+.lic-btn.sec{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.lic-btn:disabled{opacity:.45;cursor:not-allowed}
+.lic-btn:focus-visible,.lic-link:focus-visible,.lic-check input:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 /* Letra ajustable: todo el CSS usa rem */
 html{font-size:calc(16px * var(--fscale, 1))}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -347,12 +375,39 @@ main{flex:1;padding:28px 20px;max-width:900px;margin:0 auto;width:100%}
 </style>
 </head>
 <body>
+<div id="splash" aria-label="Pantalla de inicio. Tocá para continuar.">
+  <img src="icon-192.png" alt="" width="96" height="96">
+  <div class="sp-title">Inglés Técnico II</div>
+  <div class="sp-sub">Study App</div>
+  <div class="sp-author">Desarrollada por Javier Barrionuevo (RED)</div>
+  <div class="sp-legal">© 2026 Javier Barrionuevo (RED). Todos los derechos reservados.<br>Licencia propietaria de código visible.</div>
+  <div class="sp-skip">Tocá para continuar</div>
+</div>
+<script>
+// Splash: se cierra a los ~2 s (lo pide el script principal), al tocar, con Enter/Espacio/Escape,
+// y como máximo a los 4 s aunque falle todo lo demás.
+(function(){
+  var sp=document.getElementById('splash'), done=false;
+  window.hideSplash=function(){
+    if(done) return; done=true;
+    document.removeEventListener('keydown',onKey);
+    var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var finish=function(){ if(sp&&sp.parentNode) sp.parentNode.removeChild(sp); if(typeof window.afterSplash==='function'){ try{ window.afterSplash(); }catch(e){} } };
+    if(reduce||!sp){ finish(); return; }
+    sp.classList.add('out'); setTimeout(finish,400);
+  };
+  function onKey(e){ if(e.key==='Enter'||e.key===' '||e.key==='Escape'){ e.preventDefault(); window.hideSplash(); } }
+  if(sp) sp.addEventListener('click',window.hideSplash);
+  document.addEventListener('keydown',onKey);
+  setTimeout(window.hideSplash,4000);
+})();
+</script>
 <div id="warm" aria-hidden="true"></div>
 <div id="app">
   <header>
     <button id="install-btn" type="button" hidden>⬇ Instalar</button>
     <h1>Inglés Técnico II</h1>
-    <span class="sub" id="app-ver">v4.5</span>
+    <span class="sub" id="app-ver">v4.6</span>
     <div id="bc"></div>
     <div id="reader-ctrls">
       <button class="rc-btn" id="font-dec" type="button" aria-label="Achicar letra" title="Achicar letra">A−</button>
@@ -368,8 +423,8 @@ main{flex:1;padding:28px 20px;max-width:900px;margin:0 auto;width:100%}
   <main id="main"></main>
 </div>
 <script>
-const APP_VERSION = '4.5';
-const APP_NEWS = '🆕 Novedades v4.5: Colores más suaves (3 temas) y filtro cálido · Modo guiado para NimbusCloud (un incidente a la vez) · Corrección: participios en pasivas con "and", "of/or" y ortografía de términos técnicos · Resumen de tus errores más frecuentes';
+const APP_VERSION = '4.6';
+const APP_NEWS = '🆕 Novedades v4.6 · Nuevo: pantalla de inicio y aceptación de la licencia';
 
 // ── Botón "Instalar" (solo en navegador; Chrome no dispara el evento si ya está instalada) ──
 let installPrompt = null;
@@ -2376,6 +2431,77 @@ function renderResults(t,mode){
   const home=el('button','results-btn sec');home.textContent='⌂ Menú';home.onclick=()=>{S.view='home';render();};
   div.appendChild(retry);div.appendChild(home);return div;
 }
+
+// ════════════════════════════════════════════════════════════════════
+// LICENCIA: aceptación para usuarios nuevos (ing2v2_license)
+// ════════════════════════════════════════════════════════════════════
+const LICENSE_VERSION = '2026-10';   // subirla hace que el modal vuelva a aparecer para todos
+const LICENSE_KEY = 'ing2v2_license';
+const LICENSE_URL = 'https://github.com/Redmouse7112/ingles2-app/blob/main/LICENSE';
+// Resumen del archivo LICENSE: única fuente del texto que muestra el modal
+const LICENSE_SUMMARY = [
+  'La app y su código pertenecen a Javier Barrionuevo.',
+  'Podés usarla para estudiar y leer el código con fines educativos.',
+  'No podés copiarla, modificarla, redistribuirla, venderla ni usarla para entrenar sistemas de IA sin autorización escrita.',
+  'Los materiales de la cursada (consignas y textos de la profesora y del instituto) son de sus autores y no están cubiertos por esta licencia.',
+  'La corrección automática es orientativa y no reemplaza la evaluación de la docente.',
+  'Incumplir la licencia termina tus permisos.',
+];
+let licenseAcceptedThisSession = false;   // por si el almacenamiento no está disponible
+function licenseAccepted(){
+  if (licenseAcceptedThisSession) return true;
+  try { const v = JSON.parse(localStorage.getItem(LICENSE_KEY)); return !!v && v.version === LICENSE_VERSION; } catch(e) { return false; }
+}
+function showLicenseIfNeeded(){
+  if (licenseAccepted() || document.getElementById('lic-modal')) return;
+  const appEl = document.getElementById('app');
+  const modal = el('div'); modal.id = 'lic-modal';
+  modal.setAttribute('role', 'dialog'); modal.setAttribute('aria-modal', 'true');
+  modal.setAttribute('aria-labelledby', 'lic-title'); modal.setAttribute('aria-describedby', 'lic-list');
+  const card = el('div', 'lic-card');
+  const h = el('h2'); h.id = 'lic-title'; h.tabIndex = -1; h.textContent = 'Antes de empezar'; card.appendChild(h);
+  const intro = el('p', 'lic-intro'); intro.textContent = 'Esta app tiene una licencia propietaria de código visible. En resumen:'; card.appendChild(intro);
+  const ul = el('ul'); ul.id = 'lic-list';
+  LICENSE_SUMMARY.forEach(t => { const li = el('li'); li.textContent = t; ul.appendChild(li); });
+  card.appendChild(ul);
+  const a = el('a', 'lic-link'); a.href = LICENSE_URL; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.textContent = 'Leer la licencia completa ↗'; card.appendChild(a);
+  const lab = el('label', 'lic-check'); const cb = el('input'); cb.type = 'checkbox'; cb.id = 'lic-cb';
+  lab.appendChild(cb); lab.appendChild(document.createTextNode('Leí y acepto los términos de la licencia')); card.appendChild(lab);
+  const msg = el('div', 'lic-msg'); msg.setAttribute('role', 'status'); msg.setAttribute('aria-live', 'polite'); card.appendChild(msg);
+  const acts = el('div', 'lic-actions');
+  const ok = el('button', 'lic-btn'); ok.type = 'button'; ok.textContent = 'Aceptar y continuar'; ok.disabled = true;
+  const no = el('button', 'lic-btn sec'); no.type = 'button'; no.textContent = 'No acepto';
+  acts.appendChild(ok); acts.appendChild(no); card.appendChild(acts);
+  modal.appendChild(card);
+
+  cb.onchange = () => { ok.disabled = !cb.checked; if (cb.checked) msg.textContent = ''; };
+  no.onclick = () => { msg.textContent = 'Para usar la app tenés que aceptar la licencia.'; };
+  ok.onclick = () => {
+    if (!cb.checked) return;
+    licenseAcceptedThisSession = true;
+    try { localStorage.setItem(LICENSE_KEY, JSON.stringify({version: LICENSE_VERSION, acceptedAt: new Date().toISOString()})); } catch(e) {}
+    document.removeEventListener('keydown', trap, true);
+    modal.remove(); if (appEl) appEl.inert = false;
+  };
+  // sin Escape y con el foco atrapado dentro del modal
+  function trap(e){
+    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); return; }
+    if (e.key !== 'Tab') return;
+    const f = [a, cb, ok, no].filter(x => !x.disabled);
+    const i = f.indexOf(document.activeElement);
+    e.preventDefault();
+    const next = e.shiftKey ? (i <= 0 ? f[f.length - 1] : f[i - 1]) : (i === -1 || i === f.length - 1 ? f[0] : f[i + 1]);
+    next.focus();
+  }
+  document.addEventListener('keydown', trap, true);
+  if (appEl) appEl.inert = true;   // la app de fondo no recibe clics ni foco
+  document.body.appendChild(modal);
+  h.focus();
+}
+// secuencia: splash → modal (si corresponde) → home
+window.afterSplash = showLicenseIfNeeded;
+if (!document.getElementById('splash')) showLicenseIfNeeded();   // el splash ya se cerró antes de cargar este script
+setTimeout(() => { if (window.hideSplash) window.hideSplash(); }, Math.max(0, 2000 - performance.now()));
 
 render();
 </script>

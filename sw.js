@@ -1,6 +1,6 @@
 // Service worker — Inglés Técnico II
 // Estrategia cache-first. Para publicar una versión nueva del HTML, cambiá CACHE (ej: 'ingles2-v2').
-const CACHE = 'ingles2-v12';
+const CACHE = 'ingles2-v13';
 const PRECACHE = [
   './',
   './index.html',
