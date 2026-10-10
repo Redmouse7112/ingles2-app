@@ -55,31 +55,43 @@ html[data-theme="gris"]{
 }
 /* Filtro cálido (ing2v2_warm) */
 #warm{position:fixed;inset:0;pointer-events:none;z-index:9999;mix-blend-mode:multiply;background:rgba(255,150,40,var(--warm-alpha,0))}
-/* SPLASH (carga en frío; el filtro cálido queda por encima) */
-#splash{position:fixed;inset:0;z-index:9000;background:var(--bg);color:var(--text);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 16px;text-align:center;cursor:pointer;overflow-y:auto;animation:spIn .5s ease-out both;transition:opacity .4s ease}
+/* SPLASH (carga en frío; el filtro cálido queda por encima)
+   Un solo bloque con separaciones fijas en rem. margin:auto lo centra cuando entra;
+   si no entra (horizontal / letra grande) arranca arriba y scrollea, sin cortarse
+   (justify-content:center lo empujaría fuera de la pantalla por arriba). */
+#splash{position:fixed;top:0;left:0;right:0;height:100vh;height:100dvh;z-index:9000;background:var(--bg);color:var(--text);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;overflow-y:auto;padding:max(1rem,env(safe-area-inset-top)) max(1rem,env(safe-area-inset-right)) max(1rem,env(safe-area-inset-bottom)) max(1rem,env(safe-area-inset-left));text-align:center;cursor:pointer;animation:spIn .5s ease-out both;transition:opacity .4s ease}
 #splash.out{opacity:0}
-#splash img{width:6rem;height:6rem;border-radius:22%;margin-bottom:1.25rem;box-shadow:0 4px 18px rgba(0,0,0,.25)}
-.sp-title{font-size:1.75rem;font-weight:800;line-height:1.2;color:var(--text)}
-.sp-sub{font-size:.9375rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text2);margin-top:4px}
-.sp-author{font-size:.9375rem;color:var(--text);margin-top:1.75rem;line-height:1.5}
-.sp-legal{font-size:.75rem;color:var(--text2);margin-top:.5rem;line-height:1.6;max-width:22rem}
-.sp-skip{font-size:.75rem;color:var(--text3);margin-top:2rem}
+.sp-block{display:flex;flex-direction:column;align-items:center;width:100%;max-width:32rem;margin:auto}
+#splash img{width:6rem;height:6rem;border-radius:22%;box-shadow:0 4px 18px rgba(0,0,0,.25);flex:none}
+.sp-title{font-size:1.75rem;font-weight:800;line-height:1.2;color:var(--text);margin-top:1rem}
+.sp-sub{font-size:.9375rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text2);margin-top:.25rem}
+.sp-author{font-size:.9375rem;color:var(--text);line-height:1.5;margin-top:1.25rem}
+.sp-legal{font-size:.75rem;color:var(--text2);line-height:1.6;margin-top:1.25rem;max-width:100%;overflow-wrap:anywhere}
+.sp-skip{font-size:.75rem;color:var(--text3);margin-top:1.5rem}
+@media (max-height:480px){#splash img{width:4rem;height:4rem}}
 @keyframes spIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){#splash{animation:none;transition:none}}
-/* MODAL DE LICENCIA (bloquea la app hasta aceptar) */
-#lic-modal{position:fixed;inset:0;z-index:9500;background:var(--bg);display:flex;justify-content:center;overflow-y:auto;padding:24px 16px}
-.lic-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);max-width:560px;width:100%;padding:22px 20px;margin:auto 0;height:max-content}
-#lic-title{font-size:1.375rem;font-weight:800;color:var(--text);margin-bottom:10px;outline:none}
+/* MODAL DE LICENCIA (bloquea la app hasta aceptar)
+   La tarjeta mide lo que su contenido, hasta el alto disponible: título arriba y
+   casilla + botones abajo siempre visibles; si no entra, scrollea solo el cuerpo. */
+#lic-modal{position:fixed;top:0;left:0;right:0;height:100vh;height:100dvh;z-index:9500;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:max(1rem,env(safe-area-inset-top)) max(1rem,env(safe-area-inset-right)) max(1rem,env(safe-area-inset-bottom)) max(1rem,env(safe-area-inset-left))}
+.lic-card{display:flex;flex-direction:column;width:100%;max-width:34rem;max-height:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.lic-head{flex:none;padding:1.25rem 1.25rem .75rem}
+.lic-body{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:0 1.25rem .75rem}
+.lic-foot{flex:none;display:flex;flex-direction:column;gap:.75rem;padding:.75rem 1.25rem 1.25rem;border-top:1px solid var(--border)}
+#lic-title{font-size:1.375rem;font-weight:800;line-height:1.25;color:var(--text);outline:none}
 #lic-title:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:4px}
-.lic-intro{font-size:.9375rem;color:var(--text2);margin-bottom:12px;line-height:1.55}
-#lic-list{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
-#lic-list li{font-size:.9375rem;line-height:1.55;color:var(--text);padding-left:12px;border-left:3px solid var(--accent)}
-.lic-link{display:inline-block;font-size:.9375rem;color:var(--accent);margin-bottom:16px;padding:4px 0}
-.lic-check{display:flex;gap:10px;align-items:flex-start;font-size:.9375rem;line-height:1.5;color:var(--text);cursor:pointer;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);min-height:48px}
+.lic-intro{font-size:.9375rem;color:var(--text2);line-height:1.55;margin-bottom:.75rem}
+#lic-list{list-style:none;display:flex;flex-direction:column;gap:.5rem;margin-bottom:.75rem}
+#lic-list li{font-size:.9375rem;line-height:1.5;color:var(--text);padding-left:.75rem;border-left:3px solid var(--accent)}
+.lic-link{display:inline-block;font-size:.9375rem;color:var(--accent);padding:.25rem 0}
+.lic-check{display:flex;gap:.625rem;align-items:flex-start;font-size:.9375rem;line-height:1.5;color:var(--text);cursor:pointer;padding:.75rem;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);min-height:48px}
 .lic-check input{width:1.25rem;height:1.25rem;margin-top:.15rem;accent-color:var(--btn-bg);flex:none;cursor:pointer}
-.lic-msg:not(:empty){font-size:.875rem;color:var(--text);background:var(--ko-bg);border-left:3px solid var(--ko);padding:8px 12px;border-radius:var(--rs);margin-top:10px}
-.lic-actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
-.lic-btn{flex:1 1 160px;min-height:48px;background:var(--btn-bg);color:var(--btn-text);border:none;border-radius:var(--rs);font-size:.9375rem;font-weight:700;cursor:pointer;font-family:var(--body);padding:10px 16px}
+.lic-msg:empty{display:none}
+.lic-msg{font-size:.875rem;color:var(--text);background:var(--ko-bg);border-left:3px solid var(--ko);padding:.5rem .75rem;border-radius:var(--rs)}
+/* en fila solo si cada botón tiene ≥ 12rem; si no, uno debajo del otro (nunca texto partido) */
+.lic-actions{display:flex;flex-wrap:wrap;gap:.75rem}
+.lic-btn{flex:1 1 12rem;min-height:48px;background:var(--btn-bg);color:var(--btn-text);border:none;border-radius:var(--rs);font-size:.9375rem;font-weight:700;cursor:pointer;font-family:var(--body);padding:.625rem 1rem}
 .lic-btn.sec{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
 .lic-btn:disabled{opacity:.45;cursor:not-allowed}
 .lic-btn:focus-visible,.lic-link:focus-visible,.lic-check input:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
@@ -376,12 +388,14 @@ main{flex:1;padding:28px 20px;max-width:900px;margin:0 auto;width:100%}
 </head>
 <body>
 <div id="splash" aria-label="Pantalla de inicio. Tocá para continuar.">
-  <img src="icon-192.png" alt="" width="96" height="96">
-  <div class="sp-title">Inglés Técnico II</div>
-  <div class="sp-sub">Study App</div>
-  <div class="sp-author">Desarrollada por Javier Barrionuevo (RED)</div>
-  <div class="sp-legal">© 2026 Javier Barrionuevo (RED). Todos los derechos reservados.<br>Licencia propietaria de código visible.</div>
-  <div class="sp-skip">Tocá para continuar</div>
+  <div class="sp-block">
+    <img src="icon-192.png" alt="" width="96" height="96">
+    <div class="sp-title">Inglés Técnico II</div>
+    <div class="sp-sub">Study App</div>
+    <div class="sp-author">Desarrollada por Javier Barrionuevo (RED)</div>
+    <div class="sp-legal">© 2026 Javier Barrionuevo (RED). Todos los derechos reservados.<br>Licencia propietaria de código visible.</div>
+    <div class="sp-skip">Tocá para continuar</div>
+  </div>
 </div>
 <script>
 // Splash: se cierra a los ~2 s (lo pide el script principal), al tocar, con Enter/Espacio/Escape,
@@ -392,7 +406,7 @@ main{flex:1;padding:28px 20px;max-width:900px;margin:0 auto;width:100%}
     if(done) return; done=true;
     document.removeEventListener('keydown',onKey);
     var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var finish=function(){ if(sp&&sp.parentNode) sp.parentNode.removeChild(sp); if(typeof window.afterSplash==='function'){ try{ window.afterSplash(); }catch(e){} } };
+    var finish=function(){ if(sp){ sp.style.display='none'; sp.setAttribute('aria-hidden','true'); if(sp.parentNode) sp.parentNode.removeChild(sp); } if(typeof window.afterSplash==='function'){ try{ window.afterSplash(); }catch(e){} } };
     if(reduce||!sp){ finish(); return; }
     sp.classList.add('out'); setTimeout(finish,400);
   };
@@ -407,7 +421,7 @@ main{flex:1;padding:28px 20px;max-width:900px;margin:0 auto;width:100%}
   <header>
     <button id="install-btn" type="button" hidden>⬇ Instalar</button>
     <h1>Inglés Técnico II</h1>
-    <span class="sub" id="app-ver">v4.6</span>
+    <span class="sub" id="app-ver">v4.6.1</span>
     <div id="bc"></div>
     <div id="reader-ctrls">
       <button class="rc-btn" id="font-dec" type="button" aria-label="Achicar letra" title="Achicar letra">A−</button>
@@ -423,8 +437,8 @@ main{flex:1;padding:28px 20px;max-width:900px;margin:0 auto;width:100%}
   <main id="main"></main>
 </div>
 <script>
-const APP_VERSION = '4.6';
-const APP_NEWS = '🆕 Novedades v4.6 · Nuevo: pantalla de inicio y aceptación de la licencia';
+const APP_VERSION = '4.6.1';
+const APP_NEWS = '🆕 Novedades v4.6.1 · Ajuste: pantalla de inicio y licencia ahora se ven mejor en celulares';
 
 // ── Botón "Instalar" (solo en navegador; Chrome no dispara el evento si ya está instalada) ──
 let installPrompt = null;
@@ -2459,19 +2473,21 @@ function showLicenseIfNeeded(){
   modal.setAttribute('role', 'dialog'); modal.setAttribute('aria-modal', 'true');
   modal.setAttribute('aria-labelledby', 'lic-title'); modal.setAttribute('aria-describedby', 'lic-list');
   const card = el('div', 'lic-card');
-  const h = el('h2'); h.id = 'lic-title'; h.tabIndex = -1; h.textContent = 'Antes de empezar'; card.appendChild(h);
-  const intro = el('p', 'lic-intro'); intro.textContent = 'Esta app tiene una licencia propietaria de código visible. En resumen:'; card.appendChild(intro);
+  const head = el('div', 'lic-head'), body = el('div', 'lic-body'), foot = el('div', 'lic-foot');
+  const h = el('h2'); h.id = 'lic-title'; h.tabIndex = -1; h.textContent = 'Antes de empezar'; head.appendChild(h);
+  const intro = el('p', 'lic-intro'); intro.textContent = 'Esta app tiene una licencia propietaria de código visible. En resumen:'; body.appendChild(intro);
   const ul = el('ul'); ul.id = 'lic-list';
   LICENSE_SUMMARY.forEach(t => { const li = el('li'); li.textContent = t; ul.appendChild(li); });
-  card.appendChild(ul);
-  const a = el('a', 'lic-link'); a.href = LICENSE_URL; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.textContent = 'Leer la licencia completa ↗'; card.appendChild(a);
+  body.appendChild(ul);
+  const a = el('a', 'lic-link'); a.href = LICENSE_URL; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.textContent = 'Leer la licencia completa ↗'; body.appendChild(a);
   const lab = el('label', 'lic-check'); const cb = el('input'); cb.type = 'checkbox'; cb.id = 'lic-cb';
-  lab.appendChild(cb); lab.appendChild(document.createTextNode('Leí y acepto los términos de la licencia')); card.appendChild(lab);
-  const msg = el('div', 'lic-msg'); msg.setAttribute('role', 'status'); msg.setAttribute('aria-live', 'polite'); card.appendChild(msg);
+  lab.appendChild(cb); lab.appendChild(document.createTextNode('Leí y acepto los términos de la licencia')); foot.appendChild(lab);
+  const msg = el('div', 'lic-msg'); msg.setAttribute('role', 'status'); msg.setAttribute('aria-live', 'polite'); foot.appendChild(msg);
   const acts = el('div', 'lic-actions');
   const ok = el('button', 'lic-btn'); ok.type = 'button'; ok.textContent = 'Aceptar y continuar'; ok.disabled = true;
   const no = el('button', 'lic-btn sec'); no.type = 'button'; no.textContent = 'No acepto';
-  acts.appendChild(ok); acts.appendChild(no); card.appendChild(acts);
+  acts.appendChild(ok); acts.appendChild(no); foot.appendChild(acts);
+  card.appendChild(head); card.appendChild(body); card.appendChild(foot);
   modal.appendChild(card);
 
   cb.onchange = () => { ok.disabled = !cb.checked; if (cb.checked) msg.textContent = ''; };
